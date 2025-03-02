@@ -56,7 +56,7 @@ class SoundyPlayer:
         return res
 
     def work_event_queue(self):
-        event = pygame.event.poll()
+        event = pygame.event.wait()
         if event.type == self.insert:
 
             if self.state != STATE_IDLE:
