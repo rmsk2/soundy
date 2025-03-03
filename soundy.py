@@ -126,6 +126,8 @@ class SoundyPlayer:
             pygame.event.post(pygame.event.Event(self.insert, card_id=h, beep=False))
 
 def main():
+    # Last parameter is buffer size. Maybe increase it further if sound starts to lag
+    mixer.pre_init(44100, -16, 2, 2048)
     pygame.init()
     mixer.init()
     os.system('clear')
