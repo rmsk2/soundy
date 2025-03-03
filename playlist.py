@@ -66,6 +66,10 @@ class PlayList:
         self.play_time += val
 
     @serialize
+    def reset_play_time(self):
+        self.play_time = 0.0
+
+    @serialize
     def reset(self):
         self.play_time = 0.0
         self.current_title = 0

@@ -1,6 +1,7 @@
 #! /usr/bin/env python3
 
 
+import sys
 import os
 from pygame import mixer
 import pygame
@@ -10,6 +11,9 @@ import playlist
 ATR_TYLER = "3B 84 80 01 80 82 90 00 97"
 ATR_DES_FIRE = "3B 81 80 01 80 80"
 ATR_REWIND = "3B 85 80 01 80 73 C8 21 10 0E"
+ATR_RESTART = "3B 87 80 01 80 31 C0 73 D6 31 C0 23"
+
+ALL_ATRS = [ATR_TYLER, ATR_DES_FIRE, ATR_RESTART, ATR_REWIND]
 
 STATE_IDLE = 0
 STATE_PLAYING = 1
@@ -24,21 +28,22 @@ class Title:
 
 
 class SoundyPlayer:
-    def __init__(self, event_insert, event_remove, event_music_end):
+    def __init__(self, event_insert, event_remove, event_music_end, config_dir):
         self.insert = event_insert
         self.remove = event_remove
         self.play_end = event_music_end
         self.state = STATE_IDLE
         self.playing_id = NO_SONG
-        self.do_rewind = False
+        self.perform_function = None
 
         #try:
-        self.titles_raw = SoundyPlayer.read_config("./")
+        self.titles_raw = SoundyPlayer.read_config(config_dir)
         #except:
         #    print("Unable to load config files")
         #    os.exit(42)
 
-        self.card_id_rewind = len(self.titles_raw)
+        self.card_id_rewind = len(ALL_ATRS)-1
+        self.card_id_restart = len(ALL_ATRS)-2
 
         self.titles = {}
         for i in self.titles_raw:
@@ -50,8 +55,12 @@ class SoundyPlayer:
         for file in os.listdir(dir):
             if file.endswith(".json"):
                 all_files.append(os.path.join(dir, file))
+
+        def loader_f(file_name):
+            print(f"Loading: {file_name}")
+            return playlist.PlayList.from_json(file_name)
         
-        res = list(map(lambda x: playlist.PlayList.from_json(x), all_files))
+        res = list(map(loader_f, all_files))
 
         return res
 
@@ -63,15 +72,18 @@ class SoundyPlayer:
                 return
             
             if event.card_id == self.card_id_rewind:
-                self.do_rewind = True
+                self.perform_function = lambda x: x.reset()
+                print('\a')
+            elif event.card_id == self.card_id_restart:
+                self.perform_function = lambda x: x.reset_play_time()
                 print('\a')
             else:
                 if event.beep:
                     print('\a')
                 
-                if self.do_rewind:
-                    self.titles[event.card_id].reset()
-                    self.do_rewind = False
+                if self.perform_function != None:
+                    self.perform_function(self.titles[event.card_id])
+                    self.perform_function = None
 
                 print(f"Playing {self.titles[event.card_id].current_song()}")
                 mixer.music.load(self.titles[event.card_id].current_song())
@@ -123,10 +135,14 @@ def main():
     event_music_end = pygame.event.custom_type()
     pygame.mixer.music.set_endevent(event_music_end)
 
-    card_manager = cardy.CardManager([ATR_TYLER, ATR_DES_FIRE, ATR_REWIND], cardy.UidReader(ATR_DES_FIRE), event_insert, event_remove)
+    card_manager = cardy.CardManager(ALL_ATRS, cardy.UidReader(ATR_DES_FIRE), event_insert, event_remove)
     card_manager.start()
     
-    player = SoundyPlayer(event_insert, event_remove, event_music_end)
+    config_dir ="./"
+    if len(sys.argv) > 1:
+        config_dir = sys.argv[1]
+
+    player = SoundyPlayer(event_insert, event_remove, event_music_end, config_dir)
 
     try:
         while True:
