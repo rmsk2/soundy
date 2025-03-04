@@ -5,16 +5,38 @@ import pygame
 NO_CARD_ID = -1
 NO_ATR = ""
 
-class UidReader:
+class DESFireUidReader:
     def __init__(self, watched_atr):
         self._atr = watched_atr
+        self._apdu_get_version = [0x90, 0x60, 0x00, 0x00, 0x00]
+        self._apdu_read_next   = [0x90, 0xAF, 0x00, 0x00, 0x00]
     
     def make_card_id(self, card, default_id):
-        if card.atr != self._atr:
+        if self._atr != toHexString(card.atr):
             return default_id, True
 
-        # read uid and determine card id from it
-        return default_id, True
+        uid = self.read_des_fire_uid(card)
+        if uid == None:
+            return default_id, False
+
+        new_id = uid[5] * 256 + uid[6]
+
+        return new_id, True
+
+    def read_des_fire_uid(self, card):
+        card.connection = card.createConnection()
+        card.connection.connect()
+        version_bytes = []
+        response, _, sw2 = card.connection.transmit(self._apdu_get_version)
+        if sw2 != 0xAF:
+            return None
+
+        version_bytes += response
+        while sw2 != 0x00:
+            response, _, sw2 = card.connection.transmit(self._apdu_read_next)
+            version_bytes += response
+
+        return version_bytes[14:21]
 
 
 class RfidObserver(CardObserver):
@@ -26,7 +48,7 @@ class RfidObserver(CardObserver):
         for i in range(len(card_atrs)):
             self._card_atrs[i] = card_atrs[i]
             self._inv_card_atrs[card_atrs[i]] = i
-        
+
         self._ev_insert = event_insert
         self._ev_remove = event_remove
         self._atr_inserted = NO_ATR

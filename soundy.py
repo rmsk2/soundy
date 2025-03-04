@@ -137,7 +137,7 @@ def main():
     event_music_end = pygame.event.custom_type()
     pygame.mixer.music.set_endevent(event_music_end)
 
-    card_manager = cardy.CardManager(ALL_ATRS, cardy.UidReader(ATR_DES_FIRE), event_insert, event_remove)
+    card_manager = cardy.CardManager(ALL_ATRS, cardy.DESFireUidReader(ATR_DES_FIRE), event_insert, event_remove)
     card_manager.start()
     
     config_dir ="./"
