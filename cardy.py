@@ -8,6 +8,7 @@ NO_ATR = ""
 class DESFireUidReader:
     def __init__(self, watched_atr):
         self._atr = watched_atr
+        # Taken and corrected from https://ridrix.wordpress.com/2009/09/19/mifare-desfire-communication-example/
         self._apdu_get_version = [0x90, 0x60, 0x00, 0x00, 0x00]
         self._apdu_read_next   = [0x90, 0xAF, 0x00, 0x00, 0x00]
     
