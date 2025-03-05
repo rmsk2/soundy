@@ -8,23 +8,15 @@ import pygame
 import cardy
 import playlist
 
-ATR_TYLER = "3B 84 80 01 80 82 90 00 97"
 ATR_DES_FIRE = "3B 81 80 01 80 80"
-ATR_REWIND = "3B 85 80 01 80 73 C8 21 10 0E"
-ATR_RESTART = "3B 87 80 01 80 31 C0 73 D6 31 C0 23"
+ATR_E_PERSO = "3B 84 80 01 80 82 90 00 97"
 
-ALL_ATRS = [ATR_TYLER, ATR_DES_FIRE, ATR_RESTART, ATR_REWIND]
+ALL_ATRS = [ATR_E_PERSO, ATR_DES_FIRE]
 
 STATE_IDLE = 0
 STATE_PLAYING = 1
 
 NO_SONG = -1
-
-class Title:
-    def __init__(self, title, card_id):
-        self.title = title
-        self.play_time = 0.0
-        self.id = card_id   
 
 
 class SoundyPlayer:
@@ -42,8 +34,8 @@ class SoundyPlayer:
         #    print("Unable to load config files")
         #    os.exit(42)
 
-        self.card_id_rewind = len(ALL_ATRS)-1
-        self.card_id_restart = len(ALL_ATRS)-2
+        self.card_id_rewind = 13800
+        self.card_id_restart = 0
 
         self.titles = {}
         for i in self.titles_raw:
@@ -85,7 +77,7 @@ class SoundyPlayer:
                     self.perform_function(self.titles[event.card_id])
                     self.perform_function = None
 
-                print(f"Playing {self.titles[event.card_id].current_song()}")
+                print(f"Playing {self.titles[event.card_id].current_song()} from {self.titles[event.card_id].play_list_name()}")
                 mixer.music.load(self.titles[event.card_id].current_song())
                 start_pos = self.titles[event.card_id].get_play_time()
 

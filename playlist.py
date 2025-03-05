@@ -3,21 +3,23 @@ import functools
 
 
 class PlayList:
-    def __init__(self, id, name, files):
+    def __init__(self, id, file_name, files):
         self.titles = files
         self.current_title = 0
         self.play_time = 0.0
         self.card_id = id
-        self.name = name
+        self.file_name = file_name
+        self.play_list = ""
 
     @staticmethod
     def from_json(file_name):
         with(open(file_name, "r") as f):
             data = json.load(f)
         
-        res = PlayList(data["card_id"], data["name"], data["titles"])
+        res = PlayList(data["card_id"], file_name, data["titles"])
         res.current_title = data["current_title"]
         res.play_time = data["play_time"]
+        res.play_list = data["play_list"]
 
         return res
 
@@ -25,17 +27,21 @@ class PlayList:
         @functools.wraps(func)
         def wrap(self, *args, **kwargs):
             result = func(self, *args, **kwargs)
-            with(open(self.name, "w") as f):
+            with(open(self.file_name, "w") as f):
                 json.dump(self.to_json(), f, indent=4)
             return result
         return wrap
     
+    def play_list_name(self):
+        return self.play_list
+
     def current_song(self):
         return self.titles[self.current_title]
 
     def to_json(self):
         res = {
-            "name": self.name,
+            "play_list": self.play_list,
+            "file_name": self.file_name,
             "current_title": self.current_title,
             "play_time": self.play_time,
             "card_id": self.card_id,
