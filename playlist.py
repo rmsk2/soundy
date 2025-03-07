@@ -60,9 +60,25 @@ class PlayList:
 
         return False
 
+    @serialize
+    def prev_song(self):
+        if self.current_title > 0:
+            self.play_time = 0.0
+            self.current_title -= 1
+
+    @serialize
+    def skip_song(self):
+        if self.current_title + 1 < len(self.titles):
+            self.play_time = 0.0
+            self.current_title += 1
+
     def get_play_time(self):
         return self.play_time
     
+    @serialize
+    def save(self):
+        pass
+
     @serialize
     def set_play_time(self, val):
         self.play_time = val

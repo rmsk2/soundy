@@ -3,6 +3,7 @@
 
 import sys
 import os
+import time
 from pygame import mixer
 import pygame
 import cardy
@@ -10,23 +11,34 @@ import playlist
 
 ATR_DES_FIRE = "3B 81 80 01 80 80"
 ATR_E_PERSO = "3B 84 80 01 80 82 90 00 97"
+ATR_GIRO = "3B 87 80 01 80 31 C0 73 D6 31 C0 23"
+ATR_EGK = "3B 85 80 01 30 01 01 30 30 34"
 
-ALL_ATRS = [ATR_E_PERSO, ATR_DES_FIRE]
+ALL_ATRS = [ATR_E_PERSO, ATR_GIRO, ATR_EGK, ATR_DES_FIRE]
 
 STATE_IDLE = 0
 STATE_PLAYING = 1
 
 NO_SONG = -1
 
+FUNC_PLAYLIST_RESTART = 0
+FUNC_SONG_RESTART = 1
+FUNC_END = 2
+FUNC_PERFORMED = 3
+FUNC_SONG_SKIP = 4
+FUNC_SONG_PREV = 5
 
 class SoundyPlayer:
-    def __init__(self, event_insert, event_remove, event_music_end, config_dir):
+    def __init__(self, event_insert, event_remove, event_music_end, event_comm_error, event_function, config_dir):
         self.insert = event_insert
         self.remove = event_remove
         self.play_end = event_music_end
+        self.comm_error = event_comm_error
+        self.function_event = event_function
         self.state = STATE_IDLE
         self.playing_id = NO_SONG
         self.perform_function = None
+        self.end_program = False
 
         #try:
         self.titles_raw = SoundyPlayer.read_config(config_dir)
@@ -36,6 +48,9 @@ class SoundyPlayer:
 
         self.card_id_rewind = 13800
         self.card_id_restart = 0
+        self.card_id_end = 1
+        self.card_id_skip = 2
+        self.card_id_prev = 56907
 
         self.titles = {}
         for i in self.titles_raw:
@@ -56,66 +71,115 @@ class SoundyPlayer:
 
         return res
 
+    @staticmethod
+    def prep_function_execution(f, ctx):
+        def prepper(x):
+            f(x)
+            return ctx
+
+        return prepper
+
+    def handle_insert_event(self, event):
+        if self.state != STATE_IDLE:
+            return
+        
+        if event.card_id == self.card_id_rewind:
+            self.perform_function = SoundyPlayer.prep_function_execution(lambda x: x.reset(), FUNC_PLAYLIST_RESTART)
+            pygame.event.post(pygame.event.Event(self.function_event, kind=FUNC_PLAYLIST_RESTART, ctx=None))
+            print('\a')
+        elif event.card_id == self.card_id_restart:
+            self.perform_function = SoundyPlayer.prep_function_execution(lambda x: x.reset_play_time(), FUNC_SONG_RESTART)
+            pygame.event.post(pygame.event.Event(self.function_event, kind=FUNC_SONG_RESTART, ctx=None))
+            print('\a')
+        elif event.card_id == self.card_id_skip:
+            self.perform_function = SoundyPlayer.prep_function_execution(lambda x: x.skip_song(), FUNC_SONG_SKIP)
+            pygame.event.post(pygame.event.Event(self.function_event, kind=FUNC_SONG_SKIP, ctx=None))
+            print('\a')
+        elif event.card_id == self.card_id_prev:
+            self.perform_function = SoundyPlayer.prep_function_execution(lambda x: x.prev_song(), FUNC_SONG_PREV)
+            pygame.event.post(pygame.event.Event(self.function_event, kind=FUNC_SONG_PREV, ctx=None))
+            print('\a')
+        elif event.card_id == self.card_id_end:
+            print('\a')
+            pygame.event.post(pygame.event.Event(self.function_event, kind=FUNC_END, ctx=None))
+        else:
+            if event.beep:
+                print('\a')
+            
+            if self.perform_function != None:
+                context = self.perform_function(self.titles[event.card_id])
+                pygame.event.post(pygame.event.Event(self.function_event, kind=FUNC_PERFORMED, ctx=context))
+                self.perform_function = None
+
+            print(f"Playing {self.titles[event.card_id].current_song()} from {self.titles[event.card_id].play_list_name()}")
+            mixer.music.load(self.titles[event.card_id].current_song())
+            start_pos = self.titles[event.card_id].get_play_time()
+
+            mixer.music.play(start = start_pos)
+            self.playing_id = event.card_id
+            self.state = STATE_PLAYING
+
+    def handle_remove_event(self, event):
+        if self.state != STATE_PLAYING:
+            return
+
+        if event.card_id != self.playing_id:
+            return
+        
+        print(f"Stopping {self.titles[event.card_id].current_song()}")
+        self.titles[self.playing_id].increase_play_time(mixer.music.get_pos() / 1000.0)
+        self.playing_id = NO_SONG
+        self.state = STATE_IDLE
+        mixer.music.stop()
+
+    def handle_card_error(self):
+        print("Card error")
+
+    def handle_song_end(self):
+        if self.state != STATE_PLAYING:
+            return
+        
+        print(f"End of song reached")
+
+        playlist_end = self.titles[self.playing_id].next_song()
+        if playlist_end:
+            self.titles[self.playing_id].reset()
+            self.playing_id = NO_SONG
+            self.state = STATE_IDLE                
+            print("End of playlist reached")
+            return
+        
+        h = self.playing_id
+        self.playing_id = NO_SONG
+        self.state = STATE_IDLE
+        pygame.event.post(pygame.event.Event(self.insert, card_id=h, beep=False))
+
+    def handle_function_event(self, event):
+        if event.kind == FUNC_END:
+            self.end_program = True
+        elif event.kind == FUNC_PLAYLIST_RESTART:
+            print("Restart playlist")
+        elif event.kind == FUNC_SONG_RESTART:
+            print("Restart song")
+        elif event.kind == FUNC_SONG_SKIP:
+            print("Skip song")
+        elif event.kind == FUNC_SONG_PREV:
+            print("Previous song")
+        elif event.kind == FUNC_PERFORMED:
+            print(f"Function performed: {event.ctx}")
+
     def work_event_queue(self):
         event = pygame.event.wait()
         if event.type == self.insert:
-
-            if self.state != STATE_IDLE:
-                return
-            
-            if event.card_id == self.card_id_rewind:
-                self.perform_function = lambda x: x.reset()
-                print('\a')
-            elif event.card_id == self.card_id_restart:
-                self.perform_function = lambda x: x.reset_play_time()
-                print('\a')
-            else:
-                if event.beep:
-                    print('\a')
-                
-                if self.perform_function != None:
-                    self.perform_function(self.titles[event.card_id])
-                    self.perform_function = None
-
-                print(f"Playing {self.titles[event.card_id].current_song()} from {self.titles[event.card_id].play_list_name()}")
-                mixer.music.load(self.titles[event.card_id].current_song())
-                start_pos = self.titles[event.card_id].get_play_time()
-
-                mixer.music.play(start = start_pos)
-                self.playing_id = event.card_id
-                self.state = STATE_PLAYING
+            self.handle_insert_event(event)
         elif event.type == self.remove:
-
-            if self.state != STATE_PLAYING:
-                return
-
-            if event.card_id != self.playing_id:
-                return
-            
-            print(f"Stopping {self.titles[event.card_id].current_song()}")
-            self.titles[self.playing_id].increase_play_time(mixer.music.get_pos() / 1000.0)
-            self.playing_id = NO_SONG
-            self.state = STATE_IDLE
-            mixer.music.stop()
+            self.handle_remove_event(event)
         elif event.type == self.play_end:
-
-            if self.state != STATE_PLAYING:
-                return
-            
-            print(f"End of song reached")
-
-            playlist_end = self.titles[self.playing_id].next_song()
-            if playlist_end:
-                self.titles[self.playing_id].reset()
-                self.playing_id = NO_SONG
-                self.state = STATE_IDLE                
-                print("End of playlist reached")
-                return
-            
-            h = self.playing_id
-            self.playing_id = NO_SONG
-            self.state = STATE_IDLE
-            pygame.event.post(pygame.event.Event(self.insert, card_id=h, beep=False))
+            self.handle_song_end()
+        elif event.type == self.comm_error:
+            self.handle_card_error()
+        elif event.type == self.function_event:
+            self.handle_function_event(event)
 
 def main():
     # Last parameter is buffer size. Maybe increase it further if sound starts to lag
@@ -127,19 +191,30 @@ def main():
     event_insert = pygame.event.custom_type()
     event_remove = pygame.event.custom_type()
     event_music_end = pygame.event.custom_type()
+    event_comm_error = pygame.event.custom_type()
+    event_function = pygame.event.custom_type()
     pygame.mixer.music.set_endevent(event_music_end)
 
-    card_manager = cardy.CardManager(ALL_ATRS, cardy.DESFireUidReader(ATR_DES_FIRE), event_insert, event_remove)
-    card_manager.start()
-    
     config_dir ="./"
     if len(sys.argv) > 1:
         config_dir = sys.argv[1]
 
-    player = SoundyPlayer(event_insert, event_remove, event_music_end, config_dir)
+    player = SoundyPlayer(event_insert, event_remove, event_music_end, event_comm_error, event_function, config_dir)
+
+    card_manager = cardy.CardManager(ALL_ATRS, cardy.DESFireUidReader(ATR_DES_FIRE), event_insert, event_remove, event_comm_error)
+    card_manager.start()
+
+    sys.stdout.write("Waiting for reader ... ")
+    sys.stdout.flush()
+
+    time.sleep(1.5)
+
+    sys.stdout.write("done\n")
+    sys.stdout.flush()
+    print("\nBereit")
 
     try:
-        while True:
+        while not player.end_program:
             player.work_event_queue()
     except KeyboardInterrupt:
         pass

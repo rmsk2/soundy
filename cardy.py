@@ -45,14 +45,13 @@ class DESFireUidReader:
             
             res = version_bytes[14:21]
         except:
-            print("Card communication failure")
             res = None
 
         return res
 
 
 class RfidObserver(CardObserver):
-    def __init__(self, card_atrs, uid_reader, event_insert, event_remove):
+    def __init__(self, card_atrs, uid_reader, event_insert, event_remove, event_comm_error):
         self._card_atrs = {}
         self._inv_card_atrs = {}
         self._uid_reader = uid_reader
@@ -63,6 +62,7 @@ class RfidObserver(CardObserver):
 
         self._ev_insert = event_insert
         self._ev_remove = event_remove
+        self._ev_comm_error = event_comm_error
         self._atr_inserted = NO_ATR
         self._id_inserted = NO_CARD_ID
 
@@ -108,6 +108,8 @@ class RfidObserver(CardObserver):
                 id, ok = self.calc_card_id_removed(card)
                 if ok:
                     pygame.event.post(pygame.event.Event(self._ev_remove, card_id=id))
+                else:
+                    pygame.event.post(pygame.event.Event(self._ev_comm_error))
                     
         for card in added_cards:
             # Only do something if there is no card inserted at the moment
@@ -115,12 +117,13 @@ class RfidObserver(CardObserver):
                 id, ok = self.calc_card_id_inserted(card)
                 if ok:
                     pygame.event.post(pygame.event.Event(self._ev_insert, card_id=id, beep=True))
-
+                else:
+                    pygame.event.post(pygame.event.Event(self._ev_comm_error))
 
 class CardManager:
-    def __init__(self, known_atrs, uid_reader, event_insert, event_remove):
+    def __init__(self, known_atrs, uid_reader, event_insert, event_remove, event_comm_error):
         self._monitor = CardMonitor()
-        self._observer = RfidObserver(known_atrs, uid_reader, event_insert, event_remove)        
+        self._observer = RfidObserver(known_atrs, uid_reader, event_insert, event_remove, event_comm_error)
 
     def start(self):
         self._monitor.addObserver(self._observer)
