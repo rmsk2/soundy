@@ -9,6 +9,8 @@ import pygame
 import cardy
 import playlist
 
+INFO_SOUND = '/usr/share/sounds/freedesktop/stereo/dialog-error.oga'
+
 ATR_DES_FIRE = "3B 81 80 01 80 80"
 ATR_E_PERSO = "3B 84 80 01 80 82 90 00 97"
 ATR_GIRO = "3B 87 80 01 80 31 C0 73 D6 31 C0 23"
@@ -29,12 +31,15 @@ FUNC_SONG_SKIP = 4
 FUNC_SONG_PREV = 5
 
 class SoundyPlayer:
-    def __init__(self, event_insert, event_remove, event_music_end, event_comm_error, event_function, config_dir):
+    def __init__(self, event_insert, event_remove, event_music_end, event_comm_error, event_function, event_playing, event_pause, event_list_end, config_dir):
         self.insert = event_insert
         self.remove = event_remove
         self.play_end = event_music_end
         self.comm_error = event_comm_error
         self.function_event = event_function
+        self.play_start_event = event_playing
+        self.event_pause = event_pause
+        self.event_list_end = event_list_end
         self.state = STATE_IDLE
         self.playing_id = NO_SONG
         self.perform_function = None
@@ -85,39 +90,32 @@ class SoundyPlayer:
         
         if event.card_id == self.card_id_rewind:
             self.perform_function = SoundyPlayer.prep_function_execution(lambda x: x.reset(), FUNC_PLAYLIST_RESTART)
-            pygame.event.post(pygame.event.Event(self.function_event, kind=FUNC_PLAYLIST_RESTART, ctx=None))
-            print('\a')
+            pygame.event.post(pygame.event.Event(self.function_event, kind=FUNC_PLAYLIST_RESTART, ctx=None))            
         elif event.card_id == self.card_id_restart:
             self.perform_function = SoundyPlayer.prep_function_execution(lambda x: x.reset_play_time(), FUNC_SONG_RESTART)
             pygame.event.post(pygame.event.Event(self.function_event, kind=FUNC_SONG_RESTART, ctx=None))
-            print('\a')
         elif event.card_id == self.card_id_skip:
             self.perform_function = SoundyPlayer.prep_function_execution(lambda x: x.skip_song(), FUNC_SONG_SKIP)
             pygame.event.post(pygame.event.Event(self.function_event, kind=FUNC_SONG_SKIP, ctx=None))
-            print('\a')
         elif event.card_id == self.card_id_prev:
             self.perform_function = SoundyPlayer.prep_function_execution(lambda x: x.prev_song(), FUNC_SONG_PREV)
             pygame.event.post(pygame.event.Event(self.function_event, kind=FUNC_SONG_PREV, ctx=None))
-            print('\a')
         elif event.card_id == self.card_id_end:
-            print('\a')
             pygame.event.post(pygame.event.Event(self.function_event, kind=FUNC_END, ctx=None))
-        else:
-            if event.beep:
-                print('\a')
-            
+        else:            
             if self.perform_function != None:
                 context = self.perform_function(self.titles[event.card_id])
                 pygame.event.post(pygame.event.Event(self.function_event, kind=FUNC_PERFORMED, ctx=context))
                 self.perform_function = None
 
-            print(f"Playing {self.titles[event.card_id].current_song()} from {self.titles[event.card_id].play_list_name()}")
-            mixer.music.load(self.titles[event.card_id].current_song())
-            start_pos = self.titles[event.card_id].get_play_time()
+            pl = self.titles[event.card_id]
+            mixer.music.load(pl.current_song())
+            start_pos = pl.get_play_time()
 
             mixer.music.play(start = start_pos)
             self.playing_id = event.card_id
-            self.state = STATE_PLAYING
+            self.state = STATE_PLAYING            
+            pygame.event.post(pygame.event.Event(self.play_start_event, play_list_name=pl.play_list_name(), song=pl.current_song_num(), num_songs=pl.num_songs(), beep=event.beep))
 
     def handle_remove_event(self, event):
         if self.state != STATE_PLAYING:
@@ -126,27 +124,22 @@ class SoundyPlayer:
         if event.card_id != self.playing_id:
             return
         
-        print(f"Stopping {self.titles[event.card_id].current_song()}")
         self.titles[self.playing_id].increase_play_time(mixer.music.get_pos() / 1000.0)
         self.playing_id = NO_SONG
         self.state = STATE_IDLE
         mixer.music.stop()
-
-    def handle_card_error(self):
-        print("Card error")
+        pygame.event.post(pygame.event.Event(self.event_pause))
 
     def handle_song_end(self):
         if self.state != STATE_PLAYING:
             return
-        
-        print(f"End of song reached")
 
         playlist_end = self.titles[self.playing_id].next_song()
         if playlist_end:
             self.titles[self.playing_id].reset()
             self.playing_id = NO_SONG
-            self.state = STATE_IDLE                
-            print("End of playlist reached")
+            self.state = STATE_IDLE
+            pygame.event.post(pygame.event.Event(self.event_list_end))
             return
         
         h = self.playing_id
@@ -154,19 +147,39 @@ class SoundyPlayer:
         self.state = STATE_IDLE
         pygame.event.post(pygame.event.Event(self.insert, card_id=h, beep=False))
 
-    def handle_function_event(self, event):
+    def sound_bell(self):
+        sound = pygame.mixer.Sound(INFO_SOUND)
+        sound.play()
+
+    def ui_handle_card_error(self):
+        print("Kartenlesefehler!")
+
+    def ui_handle_play_start(self, event):
+        if event.beep:
+            self.sound_bell()
+
+        print(f"Kapitel {event.song + 1} von {event.num_songs} in {event.play_list_name}")
+
+    def ui_handle_pause(self):
+        print("Pausiert")
+
+    def ui_handle_list_end(self):
+        print("Hörbuch zu Ende")
+
+    def ui_handle_function_event(self, event):
+        self.sound_bell()
         if event.kind == FUNC_END:
             self.end_program = True
         elif event.kind == FUNC_PLAYLIST_RESTART:
-            print("Restart playlist")
+            print("Hörbuch von Anfang an hören")
         elif event.kind == FUNC_SONG_RESTART:
-            print("Restart song")
+            print("Zurück zum Anfang des Kapitels")
         elif event.kind == FUNC_SONG_SKIP:
-            print("Skip song")
+            print("Zum nächsten Kapitel")
         elif event.kind == FUNC_SONG_PREV:
-            print("Previous song")
+            print("Zum vorherigen Kapitel")
         elif event.kind == FUNC_PERFORMED:
-            print(f"Function performed: {event.ctx}")
+            print(f"Sonderfunktion ausgeführt: {event.ctx}")
 
     def work_event_queue(self):
         event = pygame.event.wait()
@@ -177,9 +190,16 @@ class SoundyPlayer:
         elif event.type == self.play_end:
             self.handle_song_end()
         elif event.type == self.comm_error:
-            self.handle_card_error()
+            self.ui_handle_card_error()
         elif event.type == self.function_event:
-            self.handle_function_event(event)
+            self.ui_handle_function_event(event)
+        elif event.type == self.play_start_event:
+            self.ui_handle_play_start(event)
+        elif event.type == self.event_pause:
+            self.ui_handle_pause()
+        elif event.type == self.event_list_end:
+            self.ui_handle_list_end()
+
 
 def main():
     # Last parameter is buffer size. Maybe increase it further if sound starts to lag
@@ -193,13 +213,16 @@ def main():
     event_music_end = pygame.event.custom_type()
     event_comm_error = pygame.event.custom_type()
     event_function = pygame.event.custom_type()
+    event_playing = pygame.event.custom_type()
+    event_pause = pygame.event.custom_type()
+    event_list_end = pygame.event.custom_type()
     pygame.mixer.music.set_endevent(event_music_end)
 
     config_dir ="./"
     if len(sys.argv) > 1:
         config_dir = sys.argv[1]
 
-    player = SoundyPlayer(event_insert, event_remove, event_music_end, event_comm_error, event_function, config_dir)
+    player = SoundyPlayer(event_insert, event_remove, event_music_end, event_comm_error, event_function, event_playing, event_pause, event_list_end, config_dir)
 
     card_manager = cardy.CardManager(ALL_ATRS, cardy.DESFireUidReader(ATR_DES_FIRE), event_insert, event_remove, event_comm_error)
     card_manager.start()
@@ -219,6 +242,7 @@ def main():
     except KeyboardInterrupt:
         pass
     finally:
+        pygame.time.wait(200)
         card_manager.destroy()
 
 if __name__ == "__main__":

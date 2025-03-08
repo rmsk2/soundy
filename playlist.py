@@ -35,6 +35,12 @@ class PlayList:
     def play_list_name(self):
         return self.play_list
 
+    def num_songs(self):
+        return len(self.titles)
+
+    def current_song_num(self):
+        return self.current_title
+
     def current_song(self):
         return self.titles[self.current_title]
 
