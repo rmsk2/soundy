@@ -110,7 +110,10 @@ class SoundyPlayer:
             pygame.event.post(pygame.event.Event(self.function_event, kind=FUNC_SONG_PREV, ctx=None))
         elif event.card_id == self.card_id_end:
             pygame.event.post(pygame.event.Event(self.function_event, kind=FUNC_END, ctx=None))
-        else:            
+        else:
+            if not event.card_id in self.titles.keys():
+                return
+
             if self.perform_function != None:
                 context = self.perform_function(self.titles[event.card_id])
                 pygame.event.post(pygame.event.Event(self.function_event, kind=FUNC_PERFORMED, ctx=context))
