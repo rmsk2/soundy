@@ -129,6 +129,5 @@ class CardManager:
         self._monitor.addObserver(self._observer)
 
     def destroy(self):
-        print("Disconnecting reader")
         self._monitor.deleteObserver(self._observer)
 

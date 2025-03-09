@@ -1,0 +1,14 @@
+{
+    "sounds": {
+        "info_sound": "dialog-information.oga",
+        "warning_sound": "dialog-warning.oga",
+        "error_sound": "dialog-error.oga"    
+    },
+    "ids": {
+        "rewind": 13800,
+        "restart": 0,
+        "end": 1,
+        "skip": 2,
+        "prev": 56907
+    }
+}

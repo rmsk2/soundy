@@ -4,12 +4,12 @@
 import sys
 import os
 import time
+import json
 from pygame import mixer
 import pygame
 import cardy
 import playlist
 
-INFO_SOUND = '/usr/share/sounds/freedesktop/stereo/dialog-error.oga'
 
 ATR_DES_FIRE = "3B 81 80 01 80 80"
 ATR_E_PERSO = "3B 84 80 01 80 82 90 00 97"
@@ -31,7 +31,7 @@ FUNC_SONG_SKIP = 4
 FUNC_SONG_PREV = 5
 
 class SoundyPlayer:
-    def __init__(self, event_insert, event_remove, event_music_end, event_comm_error, event_function, event_playing, event_pause, event_list_end, config_dir):
+    def __init__(self, ui, event_insert, event_remove, event_music_end, event_comm_error, event_function, event_playing, event_pause, event_list_end, ui_stopped):
         self.insert = event_insert
         self.remove = event_remove
         self.play_end = event_music_end
@@ -40,25 +40,30 @@ class SoundyPlayer:
         self.play_start_event = event_playing
         self.event_pause = event_pause
         self.event_list_end = event_list_end
+        self.event_ui_stopped = ui_stopped
         self.state = STATE_IDLE
         self.playing_id = NO_SONG
         self.perform_function = None
         self.end_program = False
+        self.ui = ui
 
-        #try:
-        self.titles_raw = SoundyPlayer.read_config(config_dir)
-        #except:
-        #    print("Unable to load config files")
-        #    os.exit(42)
+        c = ui.ui_config["ids"]
+        self.card_id_rewind = c["rewind"]
+        self.card_id_restart = c["restart"]
+        self.card_id_end = c["end"]
+        self.card_id_skip = c["skip"]
+        self.card_id_prev = c["prev"]
+        self.titles = {}
 
-        self.card_id_rewind = 13800
-        self.card_id_restart = 0
-        self.card_id_end = 1
-        self.card_id_skip = 2
-        self.card_id_prev = 56907
+    def load_config(self, config_dir):
+        try:
+            titles_raw = SoundyPlayer.read_config(config_dir)
+        except:
+            print("Kann Playlisten nicht laden")
+            os.exit(42)
 
         self.titles = {}
-        for i in self.titles_raw:
+        for i in titles_raw:
             self.titles[i.card_id] = i
 
     @staticmethod
@@ -147,29 +152,77 @@ class SoundyPlayer:
         self.state = STATE_IDLE
         pygame.event.post(pygame.event.Event(self.insert, card_id=h, beep=False))
 
+    def work_event_queue(self):
+        event = pygame.event.wait()
+        if event.type == self.insert:
+            self.handle_insert_event(event)
+        elif event.type == self.remove:
+            self.handle_remove_event(event)
+        elif event.type == self.play_end:
+            self.handle_song_end()
+        elif event.type == self.comm_error:
+            self.ui.handle_card_error()
+        elif event.type == self.function_event:
+            self.ui.handle_function_event(event)
+        elif event.type == self.play_start_event:
+            self.ui.handle_play_start(event)
+        elif event.type == self.event_pause:
+            self.ui.handle_pause()
+        elif event.type == self.event_list_end:
+            self.ui.handle_list_end()
+        elif event.type == self.event_ui_stopped:
+            self.end_program = True
+
+
+class SoundyUI:
+    def __init__(self, event_ui_stopped):
+        self.stopped_event = event_ui_stopped
+        pass
+
+    def load_config(self, config_dir):
+        try:
+            with(open(os.path.join(config_dir, "ui_config"), "r") as f):
+                all_data = json.load(f)
+        except:
+            print("Kann Konfiguration nicht laden")
+            os.exit(42)
+        
+        data = all_data["sounds"]
+        self._sound_info = data["info_sound"]
+        self._sound_warning = data["warning_sound"]
+        self._sound_error = data["error_sound"]
+
+        self._ui_config = all_data
+
+    @property
+    def ui_config(self):
+        return self._ui_config
+
     def sound_bell(self):
-        sound = pygame.mixer.Sound(INFO_SOUND)
+        sound = pygame.mixer.Sound(self._sound_error)
         sound.play()
 
-    def ui_handle_card_error(self):
+    def handle_card_error(self):
         print("Kartenlesefehler!")
 
-    def ui_handle_play_start(self, event):
+    def handle_play_start(self, event):
         if event.beep:
             self.sound_bell()
 
         print(f"Kapitel {event.song + 1} von {event.num_songs} in {event.play_list_name}")
 
-    def ui_handle_pause(self):
+    def handle_pause(self):
         print("Pausiert")
 
-    def ui_handle_list_end(self):
+    def handle_list_end(self):
         print("Hörbuch zu Ende")
 
-    def ui_handle_function_event(self, event):
+    def handle_function_event(self, event):
         self.sound_bell()
         if event.kind == FUNC_END:
-            self.end_program = True
+            print("Beende Programm")
+            pygame.time.wait(200)
+            pygame.event.post(pygame.event.Event(self.stopped_event))
         elif event.kind == FUNC_PLAYLIST_RESTART:
             print("Hörbuch von Anfang an hören")
         elif event.kind == FUNC_SONG_RESTART:
@@ -181,24 +234,17 @@ class SoundyPlayer:
         elif event.kind == FUNC_PERFORMED:
             print(f"Sonderfunktion ausgeführt: {event.ctx}")
 
-    def work_event_queue(self):
-        event = pygame.event.wait()
-        if event.type == self.insert:
-            self.handle_insert_event(event)
-        elif event.type == self.remove:
-            self.handle_remove_event(event)
-        elif event.type == self.play_end:
-            self.handle_song_end()
-        elif event.type == self.comm_error:
-            self.ui_handle_card_error()
-        elif event.type == self.function_event:
-            self.ui_handle_function_event(event)
-        elif event.type == self.play_start_event:
-            self.ui_handle_play_start(event)
-        elif event.type == self.event_pause:
-            self.ui_handle_pause()
-        elif event.type == self.event_list_end:
-            self.ui_handle_list_end()
+
+def init_reader():
+    sys.stdout.write("Waiting for reader ... ")
+    sys.stdout.flush()
+
+    time.sleep(1.5)
+
+    sys.stdout.write("done\n")
+    sys.stdout.flush()
+    os.system('clear')
+    print("Bereit")
 
 
 def main():
@@ -207,7 +253,7 @@ def main():
     pygame.init()
     mixer.init()
     os.system('clear')
-    
+
     event_insert = pygame.event.custom_type()
     event_remove = pygame.event.custom_type()
     event_music_end = pygame.event.custom_type()
@@ -216,33 +262,33 @@ def main():
     event_playing = pygame.event.custom_type()
     event_pause = pygame.event.custom_type()
     event_list_end = pygame.event.custom_type()
+    event_ui_stopped = pygame.event.custom_type()
     pygame.mixer.music.set_endevent(event_music_end)
 
     config_dir ="./"
     if len(sys.argv) > 1:
         config_dir = sys.argv[1]
 
-    player = SoundyPlayer(event_insert, event_remove, event_music_end, event_comm_error, event_function, event_playing, event_pause, event_list_end, config_dir)
+    ui = SoundyUI(event_ui_stopped)
+    ui.load_config(config_dir)
+    
+    player = SoundyPlayer(ui, event_insert, event_remove, event_music_end, event_comm_error, event_function, event_playing, event_pause, event_list_end, event_ui_stopped)
+    player.load_config(config_dir)
 
     card_manager = cardy.CardManager(ALL_ATRS, cardy.DESFireUidReader(ATR_DES_FIRE), event_insert, event_remove, event_comm_error)
     card_manager.start()
 
-    sys.stdout.write("Waiting for reader ... ")
-    sys.stdout.flush()
-
-    time.sleep(1.5)
-
-    sys.stdout.write("done\n")
-    sys.stdout.flush()
-    print("\nBereit")
+    init_reader()
 
     try:
+        # empty event queue, i.e. initial card errors
+        to_ignore = pygame.event.get()
+
         while not player.end_program:
             player.work_event_queue()
     except KeyboardInterrupt:
         pass
     finally:
-        pygame.time.wait(200)
         card_manager.destroy()
 
 if __name__ == "__main__":

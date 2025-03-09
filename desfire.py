@@ -77,14 +77,14 @@ class selectDFTELECOMObserver(CardObserver):
             if res == None:
                 print("Error reading DESFire card")
                 return
-            print(self.uid_to_card_id(res))
+            print(f"Card Id: {self.uid_to_card_id(res)}")
 
         for card in removedcards:
             print("-Removed: ", toHexString(card.atr))
 
 
 if __name__ == "__main__":
-    print("Insert or remove a SIM card in the system.")
+    print("Insert or remove a DESFire card in the system.")
     print("This program will exit in 60 seconds")
     print("")
     cardmonitor = CardMonitor()
