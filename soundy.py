@@ -44,7 +44,7 @@ class SoundyPlayer:
         self.state = STATE_IDLE
         self.playing_id = NO_SONG
         self.perform_function = None
-        self.end_program = False
+        self._end_program = False
         self.ui = ui
 
         c = ui.ui_config["ids"]
@@ -88,6 +88,10 @@ class SoundyPlayer:
             return ctx
 
         return prepper
+
+    @property
+    def end_program(self):
+        return self._end_program
 
     def handle_insert_event(self, event):
         if self.state != STATE_IDLE:
@@ -171,7 +175,7 @@ class SoundyPlayer:
         elif event.type == self.event_list_end:
             self.ui.handle_list_end()
         elif event.type == self.event_ui_stopped:
-            self.end_program = True
+            self._end_program = True
 
 
 class SoundyUI:
@@ -271,7 +275,7 @@ def main():
 
     ui = SoundyUI(event_ui_stopped)
     ui.load_config(config_dir)
-    
+
     player = SoundyPlayer(ui, event_insert, event_remove, event_music_end, event_comm_error, event_function, event_playing, event_pause, event_list_end, event_ui_stopped)
     player.load_config(config_dir)
 
