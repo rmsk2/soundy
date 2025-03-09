@@ -5,6 +5,7 @@ import pygame
 import soundy
 
 EMPTY_STR = '                           '
+STD_MSG = "Hallo Erna"
 
 class SoundyUI:
     def __init__(self, event_ui_stopped):
@@ -32,6 +33,12 @@ class SoundyUI:
         self._sound_info = data["info_sound"]
         self._sound_warning = data["warning_sound"]
         self._sound_error = data["error_sound"]
+
+        data = all_data["size"]
+        self._x_size = data["x_size"]
+        self._y_size = data["y_size"]
+        self._font_size = data["font_size1"]
+        self._func_font_size = data["font_size2"]
 
         self._ui_config = all_data
 
@@ -81,10 +88,10 @@ class SoundyUI:
         self ._text = f"Kapitel {event.song + 1} von {event.num_songs}"
 
     def handle_pause(self):
-        self._text = "Hallo Erna"
+        self._text = STD_MSG
 
     def handle_list_end(self):
-        self._text = "Hallo Erna"
+        self._text = STD_MSG
 
     def handle_function_event(self, event):
         self.sound_bell()

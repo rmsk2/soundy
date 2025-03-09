@@ -74,7 +74,6 @@ class SoundyPlayer:
                 all_files.append(os.path.join(dir, file))
 
         def loader_f(file_name):
-            print(f"Loading: {file_name}")
             return playlist.PlayList.from_json(file_name)
         
         res = list(map(loader_f, all_files))
@@ -178,17 +177,13 @@ class SoundyPlayer:
             self._end_program = True
 
 
-def init_reader():
+def init_reader(wait_time):
     sys.stdout.write("Waiting for reader ... ")
     sys.stdout.flush()
 
-    time.sleep(1.5)
+    time.sleep(wait_time)
 
-    sys.stdout.write("done\n")
-    sys.stdout.flush()
-    os.system('clear')
-    print("Bereit")
-
+    print("done")
 
 def main():
     # Last parameter is buffer size. Maybe increase it further if sound starts to lag
@@ -221,7 +216,7 @@ def main():
     card_manager = cardy.CardManager(ALL_ATRS, cardy.DESFireUidReader(ATR_DES_FIRE), event_insert, event_remove, event_comm_error)
     card_manager.start()
 
-    init_reader()
+    init_reader(ui.ui_config["wait_reader_sec"])
 
     try:
         # empty event queue, i.e. initial card errors
