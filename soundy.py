@@ -226,9 +226,12 @@ def main():
     try:
         # empty event queue, i.e. initial card errors
         to_ignore = pygame.event.get()
+        ui.start()
 
         while not player.end_program:
             player.work_event_queue()
+            ui.redraw()
+            pygame.display.update()
     except KeyboardInterrupt:
         pass
     finally:

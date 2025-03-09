@@ -4,10 +4,21 @@ from pygame import mixer
 import pygame
 import soundy
 
+EMPTY_STR = '                           '
+
 class SoundyUI:
     def __init__(self, event_ui_stopped):
         self.stopped_event = event_ui_stopped
-        pass
+        self.white = (255, 255, 255)
+        self.black = (0, 0, 0)
+        self.red = (255, 0, 0)
+        self._x_size = 800
+        self._y_size = 600
+        self._text = 'Hallo Erna'
+        self._func_text = EMPTY_STR
+        self._background_col = self.white
+        self._font_size = 48
+        self._func_font_size = 32
 
     def load_config(self, config_dir):
         try:
@@ -28,38 +39,65 @@ class SoundyUI:
     def ui_config(self):
         return self._ui_config
 
+    def redraw(self):
+        text = self._font.render(self._text, True, self.black, self._background_col)
+        text_rect = text.get_rect()
+        text_rect.center = (self._x_size // 2, self._y_size // 2)
+        self._display_surface.fill(self._background_col)
+        self._display_surface.blit(text, text_rect)
+
+        text = self._func_font.render(self._func_text, True, self.black, self._background_col)
+        text_rect = text.get_rect()
+        text_rect.center = (self._x_size // 2, self._y_size // 4)
+        self._display_surface.blit(text, text_rect)
+
+    def start(self):
+        self._display_surface = pygame.display.set_mode((self._x_size, self._y_size))
+        pygame.display.set_caption("Ernas Hörbuchspieler")
+        self._font = pygame.font.Font('freesansbold.ttf', self._font_size)
+        self._func_font = pygame.font.Font('freesansbold.ttf', self._func_font_size)
+
     def sound_bell(self):
         sound = pygame.mixer.Sound(self._sound_error)
         sound.play()
 
     def handle_card_error(self):
-        print("Kartenlesefehler!")
+        h = self._text
+        b = self._background_col
+
+        self._background_col = self.red
+        self.redraw()
+        pygame.display.update()
+        pygame.time.wait(175)
+
+        self._text = h
+        self._background_col = b
+        self.redraw()
 
     def handle_play_start(self, event):
         if event.beep:
             self.sound_bell()
 
-        print(f"Kapitel {event.song + 1} von {event.num_songs} in {event.play_list_name}")
+        self ._text = f"Kapitel {event.song + 1} von {event.num_songs}"
 
     def handle_pause(self):
-        print("Pausiert")
+        self._text = "Hallo Erna"
 
     def handle_list_end(self):
-        print("Hörbuch zu Ende")
+        self._text = "Hallo Erna"
 
     def handle_function_event(self, event):
         self.sound_bell()
         if event.kind == soundy.FUNC_END:
-            print("Beende Programm")
             pygame.time.wait(200)
             pygame.event.post(pygame.event.Event(self.stopped_event))
         elif event.kind == soundy.FUNC_PLAYLIST_RESTART:
-            print("Hörbuch von Anfang an hören")
+            self._func_text = "Hörbuch von Anfang an hören"
         elif event.kind == soundy.FUNC_SONG_RESTART:
-            print("Zurück zum Anfang des Kapitels")
+            self._func_text =  "Zurück zum Anfang des Kapitels"
         elif event.kind == soundy.FUNC_SONG_SKIP:
-            print("Zum nächsten Kapitel")
+            self._func_text =  "Zum nächsten Kapitel"
         elif event.kind == soundy.FUNC_SONG_PREV:
-            print("Zum vorherigen Kapitel")
+            self._func_text = "Zum vorherigen Kapitel"
         elif event.kind == soundy.FUNC_PERFORMED:
-            print(f"Sonderfunktion ausgeführt: {event.ctx}")
+            self._func_text = EMPTY_STR
