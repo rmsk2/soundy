@@ -1,6 +1,6 @@
 import os
 import json
-from pygame import mixer
+#from pygame import mixer
 import pygame
 import soundy
 

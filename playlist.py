@@ -1,3 +1,4 @@
+import os.path
 import json
 import functools
 
@@ -10,15 +11,19 @@ class PlayList:
         self.card_id = id
         self.file_name = file_name
         self.play_list = ""
+        self.data_dir = ""
 
     @staticmethod
     def from_json(file_name):
         with(open(file_name, "r") as f):
             data = json.load(f)
         
+        print(data)
+
         res = PlayList(data["card_id"], file_name, data["titles"])
         res.current_title = data["current_title"]
         res.play_time = data["play_time"]
+        res.data_dir = data["data_dir"]
         res.play_list = data["play_list"]
 
         return res
@@ -42,7 +47,7 @@ class PlayList:
         return self.current_title
 
     def current_song(self):
-        return self.titles[self.current_title]
+        return os.path.join(self.data_dir, self.titles[self.current_title])
 
     def to_json(self):
         res = {
@@ -51,6 +56,7 @@ class PlayList:
             "current_title": self.current_title,
             "play_time": self.play_time,
             "card_id": self.card_id,
+            "data_dir": self.data_dir,
             "titles": self.titles
         }
 
