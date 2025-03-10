@@ -17,8 +17,6 @@ class PlayList:
     def from_json(file_name):
         with(open(file_name, "r") as f):
             data = json.load(f)
-        
-        print(data)
 
         res = PlayList(data["card_id"], file_name, data["titles"])
         res.current_title = data["current_title"]
