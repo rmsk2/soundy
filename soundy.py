@@ -56,11 +56,11 @@ class SoundyPlayer:
         self.titles = {}
 
     def load_config(self, config_dir):
-        #try:
-        titles_raw = SoundyPlayer.read_config(config_dir)
-        #except:
-            #print("Kann Playlisten nicht laden")
-            #sys.exit(42)
+        try:
+            titles_raw = SoundyPlayer.read_config(config_dir)
+        except:
+            print("Kann Playlisten nicht laden")
+            sys.exit(42)
 
         self.titles = {}
         for i in titles_raw:
