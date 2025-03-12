@@ -7,6 +7,7 @@ import time
 from pygame import mixer
 import pygame
 import cardy
+import desfire
 import playlist
 import soundy_ui
 
@@ -216,7 +217,7 @@ def main():
     player = SoundyPlayer(ui, event_insert, event_remove, event_music_end, event_comm_error, event_function, event_playing, event_pause, event_list_end, event_ui_stopped)
     player.load_config(config_dir)
 
-    card_manager = cardy.CardManager(ALL_ATRS, cardy.DESFireUidReader(ATR_DES_FIRE), event_insert, event_remove, event_comm_error)
+    card_manager = cardy.CardManager(ALL_ATRS, desfire.DESFireUidReader(ATR_DES_FIRE), event_insert, event_remove, event_comm_error)
     card_manager.start()
 
     init_reader(ui.ui_config["wait_reader_sec"])
