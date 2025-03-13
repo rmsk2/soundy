@@ -1,7 +1,5 @@
 #! /usr/bin/env python3
 
-from time import sleep
-
 from smartcard.CardMonitoring import CardMonitor, CardObserver
 from smartcard.util import toHexString
 import desfire
