@@ -53,7 +53,6 @@ class RfidObserver(CardObserver):
         self._id_inserted = card_id
         return self._id_inserted, True
 
-
     def update(self, observable, actions):
         (added_cards, removed_cards) = actions
 
