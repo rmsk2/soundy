@@ -4,6 +4,7 @@
 import sys
 import os
 import time
+import pathlib
 from pygame import mixer
 import pygame
 import cardy
@@ -56,9 +57,14 @@ class SoundyPlayer:
         self.card_id_prev = c["prev"]
         self.titles = {}
 
-    def load_config(self, config_dir):
+    def load_playlists(self, config_dir):
         try:
-            titles_raw = SoundyPlayer.read_config(config_dir)
+            all_files = []
+            for file in os.listdir(config_dir):
+                if file.endswith(".json"):
+                    all_files.append(os.path.join(config_dir, file))
+
+            titles_raw = list(map(playlist.PlayList.from_json, all_files))
         except:
             print("Kann Playlisten nicht laden")
             sys.exit(42)
@@ -66,20 +72,6 @@ class SoundyPlayer:
         self.titles = {}
         for i in titles_raw:
             self.titles[i.card_id] = i
-
-    @staticmethod
-    def read_config(dir):
-        all_files = []
-        for file in os.listdir(dir):
-            if file.endswith(".json"):
-                all_files.append(os.path.join(dir, file))
-
-        def loader_f(file_name):
-            return playlist.PlayList.from_json(file_name)
-        
-        res = list(map(loader_f, all_files))
-
-        return res
 
     @staticmethod
     def prep_function_execution(f, ctx):
@@ -115,19 +107,31 @@ class SoundyPlayer:
             if not event.card_id in self.titles.keys():
                 return
 
-            if self.perform_function != None:
-                context = self.perform_function(self.titles[event.card_id])
-                pygame.event.post(pygame.event.Event(self.function_event, kind=FUNC_PERFORMED, ctx=context))
-                self.perform_function = None
-
             pl = self.titles[event.card_id]
-            mixer.music.load(pl.current_song())
-            start_pos = pl.get_play_time()
+            restore_play_time = pl.get_play_time()
+            restore_title = pl.get_current_song_num()
 
-            mixer.music.play(start = start_pos)
-            self.playing_id = event.card_id
-            self.state = STATE_PLAYING            
-            pygame.event.post(pygame.event.Event(self.play_start_event, play_list_name=pl.play_list_name(), song=pl.current_song_num(), num_songs=pl.num_songs(), beep=event.beep))
+            try:
+                if self.perform_function != None:
+                    context = self.perform_function(self.titles[event.card_id])
+                    pygame.event.post(pygame.event.Event(self.function_event, kind=FUNC_PERFORMED, ctx=context))
+                    self.perform_function = None
+
+                if not pathlib.Path(pl.current_song()).exists():
+                    raise Exception("File does not exist")
+
+                mixer.music.load(pl.current_song())
+                start_pos = pl.get_play_time()
+
+                mixer.music.play(start = start_pos)
+                self.playing_id = event.card_id
+                self.state = STATE_PLAYING
+                pygame.event.post(pygame.event.Event(self.play_start_event, play_list_name=pl.play_list_name(), song=pl.get_current_song_num(), num_songs=pl.num_songs(), beep=event.beep))
+            except Exception as e:
+                print(e)
+                pygame.event.post(pygame.event.Event(self.comm_error))
+                pl.set_play_time(restore_play_time)
+                pl.set_current_song_num(restore_title)
 
     def handle_remove_event(self, event):
         if self.state != STATE_PLAYING:
@@ -168,7 +172,7 @@ class SoundyPlayer:
         elif event.type == self.play_end:
             self.handle_song_end()
         elif event.type == self.comm_error:
-            self.ui.handle_card_error()
+            self.ui.handle_error()
         elif event.type == self.function_event:
             self.ui.handle_function_event(event)
         elif event.type == self.play_start_event:
@@ -215,7 +219,7 @@ def main():
     ui.load_config(config_dir)
 
     player = SoundyPlayer(ui, event_insert, event_remove, event_music_end, event_comm_error, event_function, event_playing, event_pause, event_list_end, event_ui_stopped)
-    player.load_config(config_dir)
+    player.load_playlists(config_dir)
 
     card_manager = cardy.CardManager(ALL_ATRS, desfire.DESFireUidReader(ATR_DES_FIRE), event_insert, event_remove, event_comm_error)
     card_manager.start()

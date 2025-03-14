@@ -41,8 +41,12 @@ class PlayList:
     def num_songs(self):
         return len(self.titles)
 
-    def current_song_num(self):
+    def get_current_song_num(self):
         return self.current_title
+
+    @serialize
+    def set_current_song_num(self, val):
+        self.current_title = val
 
     def current_song(self):
         return os.path.join(self.data_dir, self.titles[self.current_title])
@@ -62,7 +66,7 @@ class PlayList:
 
     @serialize
     def next_song(self):
-        self.set_play_time(0.0)
+        self.play_time = 0.0
 
         self.current_title += 1
         if self.current_title >= len(self.titles):

@@ -1,6 +1,5 @@
 import os
 import json
-#from pygame import mixer
 import pygame
 import soundy
 
@@ -15,7 +14,7 @@ class SoundyUI:
         self.red = (255, 0, 0)
         self._x_size = 800
         self._y_size = 600
-        self._text = 'Hallo Erna'
+        self._text = STD_MSG
         self._func_text = EMPTY_STR
         self._background_col = self.white
         self._font_size = 48
@@ -68,7 +67,7 @@ class SoundyUI:
         sound = pygame.mixer.Sound(self._sound_error)
         sound.play()
 
-    def handle_card_error(self):
+    def handle_error(self):
         h = self._text
         b = self._background_col
 
@@ -85,7 +84,7 @@ class SoundyUI:
         if event.beep:
             self.sound_bell()
 
-        self ._text = f"Kapitel {event.song + 1} von {event.num_songs}"
+        self._text = f"Kapitel {event.song + 1} von {event.num_songs}"
 
     def handle_pause(self):
         self._text = STD_MSG
