@@ -2,7 +2,7 @@ import os
 import json
 import pygame
 import soundy
-import soundy_errs
+from soundyconsts import *
 
 EMPTY_STR = '                           '
 STD_MSG = "Hallo Erna"
@@ -22,9 +22,11 @@ class SoundyUI:
         self._background_col = self.white
         self._font_size = 48
         self._func_font_size = 32
+        self._logger = self.err_logger
+
         self._err_map = {
-            soundy_errs.ERR_TYPE_COMM: self.red,
-            soundy_errs.ERR_TYPE_FILE: self.blue
+            ERR_TYPE_COMM: self.red,
+            ERR_TYPE_FILE: self.blue
         }
 
     def load_config(self, config_dir):
@@ -49,6 +51,14 @@ class SoundyUI:
         self._ui_config = all_data
 
     @property
+    def logger(self):
+        return self._logger
+    
+    @logger.setter
+    def logger(self, val):
+        self._logger = val
+
+    @property
     def ui_config(self):
         return self._ui_config
 
@@ -70,12 +80,15 @@ class SoundyUI:
         self._font = pygame.font.Font('freesansbold.ttf', self._font_size)
         self._func_font = pygame.font.Font('freesansbold.ttf', self._func_font_size)
 
+    def err_logger(self, msg):
+        self.sound_bell()
+
     def sound_bell(self):
         sound = pygame.mixer.Sound(self._sound_error)
         sound.play()
 
     def handle_error(self, err_type, err_msg):
-        print(err_msg)
+        self._logger(err_msg)
         h = self._text
         b = self._background_col
 
@@ -87,9 +100,6 @@ class SoundyUI:
         self._text = h
         self._background_col = b
         self.redraw()        
-
-    def handle_comm_error(self):
-        self.handle_error(soundy_errs.ERR_TYPE_COMM)
 
     def handle_play_start(self, event):
         if event.beep:
@@ -108,13 +118,13 @@ class SoundyUI:
         if event.kind == soundy.FUNC_END:
             pygame.time.wait(200)
             pygame.event.post(pygame.event.Event(self.stopped_event))
-        elif event.kind == soundy.FUNC_PLAYLIST_RESTART:
+        elif event.kind == FUNC_PLAYLIST_RESTART:
             self._func_text = "Hörbuch von Anfang an hören"
-        elif event.kind == soundy.FUNC_SONG_RESTART:
+        elif event.kind == FUNC_SONG_RESTART:
             self._func_text =  "Zurück zum Anfang des Kapitels"
-        elif event.kind == soundy.FUNC_SONG_SKIP:
+        elif event.kind == FUNC_SONG_SKIP:
             self._func_text =  "Zum nächsten Kapitel"
-        elif event.kind == soundy.FUNC_SONG_PREV:
+        elif event.kind == FUNC_SONG_PREV:
             self._func_text = "Zum vorherigen Kapitel"
-        elif event.kind == soundy.FUNC_PERFORMED:
+        elif event.kind == FUNC_PERFORMED:
             self._func_text = EMPTY_STR

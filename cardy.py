@@ -1,7 +1,7 @@
 from smartcard.CardMonitoring import CardMonitor, CardObserver
 from smartcard.util import toHexString
 import pygame
-import soundy_errs
+from soundyconsts import *
 
 NO_CARD_ID = -1
 NO_ATR = ""
@@ -64,7 +64,7 @@ class RfidObserver(CardObserver):
                 if ok:
                     pygame.event.post(pygame.event.Event(self._ev_remove, card_id=id))
                 else:
-                    pygame.event.post(pygame.event.Event(self._ev_comm_error, soundy_errs.ERR_TYPE_COMM, err_msg="Card error"))
+                    pygame.event.post(pygame.event.Event(self._ev_comm_error, err_type=ERR_TYPE_COMM, err_msg="Card error at removal"))
                     
         for card in added_cards:
             # Only do something if there is no card inserted at the moment
@@ -73,7 +73,7 @@ class RfidObserver(CardObserver):
                 if ok:
                     pygame.event.post(pygame.event.Event(self._ev_insert, card_id=id, beep=True))
                 else:
-                    pygame.event.post(pygame.event.Event(self._ev_comm_error, soundy_errs.ERR_TYPE_COMM, err_msg="Card error"))
+                    pygame.event.post(pygame.event.Event(self._ev_comm_error, err_type=ERR_TYPE_COMM, err_msg="Card error at insertion"))
 
 class CardManager:
     def __init__(self, known_atrs, uid_reader, event_insert, event_remove, event_comm_error):

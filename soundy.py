@@ -11,7 +11,7 @@ import cardy
 import desfire
 import playlist
 import soundy_ui
-import soundy_errs
+from soundyconsts import *
 
 
 ATR_DES_FIRE = "3B 81 80 01 80 80"
@@ -19,19 +19,12 @@ ATR_E_PERSO = "3B 84 80 01 80 82 90 00 97"
 ATR_GIRO = "3B 87 80 01 80 31 C0 73 D6 31 C0 23"
 ATR_EGK = "3B 85 80 01 30 01 01 30 30 34"
 
-ALL_ATRS = [ATR_E_PERSO, ATR_GIRO, ATR_EGK, ATR_DES_FIRE]
+ALL_ATRS = [ATR_GIRO, ATR_EGK, ATR_DES_FIRE]
 
 STATE_IDLE = 0
 STATE_PLAYING = 1
 
 NO_SONG = -1
-
-FUNC_PLAYLIST_RESTART = 0
-FUNC_SONG_RESTART = 1
-FUNC_END = 2
-FUNC_PERFORMED = 3
-FUNC_SONG_SKIP = 4
-FUNC_SONG_PREV = 5
 
 class SoundyPlayer:
     def __init__(self, ui, event_insert, event_remove, event_music_end, event_function, event_playing, event_pause, event_list_end, ui_stopped, err_generic):
@@ -129,7 +122,7 @@ class SoundyPlayer:
                 self.state = STATE_PLAYING
                 pygame.event.post(pygame.event.Event(self.play_start_event, play_list_name=pl.play_list_name(), song=pl.get_current_song_num(), num_songs=pl.num_songs(), beep=event.beep))
             except Exception as e:
-                pygame.event.post(pygame.event.Event(self.event_err_gen, err_type=soundy_errs.ERR_TYPE_FILE, err_msg=str(e)))
+                pygame.event.post(pygame.event.Event(self.event_err_gen, err_type=ERR_TYPE_FILE, err_msg=str(e)))
                 pl.set_play_time(restore_play_time)
                 pl.set_current_song_num(restore_title)
 
@@ -193,6 +186,9 @@ def init_reader(wait_time):
 
     print("done")
 
+def print_logger(msg):
+    print(msg)
+
 def main():
     # Last parameter is buffer size. Maybe increase it further if sound starts to lag
     mixer.pre_init(44100, -16, 2, 2048)
@@ -217,6 +213,7 @@ def main():
 
     ui = soundy_ui.SoundyUI(event_ui_stopped)
     ui.load_config(config_dir)
+    #ui.logger = print_logger
 
     player = SoundyPlayer(ui, event_insert, event_remove, event_music_end, event_function, event_playing, event_pause, event_list_end, event_ui_stopped, event_err_generic)
     player.load_playlists(config_dir)
