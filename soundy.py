@@ -11,6 +11,7 @@ import cardy
 import desfire
 import playlist
 import soundy_ui
+import soundy_errs
 
 
 ATR_DES_FIRE = "3B 81 80 01 80 80"
@@ -33,11 +34,10 @@ FUNC_SONG_SKIP = 4
 FUNC_SONG_PREV = 5
 
 class SoundyPlayer:
-    def __init__(self, ui, event_insert, event_remove, event_music_end, event_comm_error, event_function, event_playing, event_pause, event_list_end, ui_stopped):
+    def __init__(self, ui, event_insert, event_remove, event_music_end, event_function, event_playing, event_pause, event_list_end, ui_stopped, err_generic):
         self.insert = event_insert
         self.remove = event_remove
         self.play_end = event_music_end
-        self.comm_error = event_comm_error
         self.function_event = event_function
         self.play_start_event = event_playing
         self.event_pause = event_pause
@@ -47,6 +47,7 @@ class SoundyPlayer:
         self.playing_id = NO_SONG
         self.perform_function = None
         self._end_program = False
+        self.event_err_gen = err_generic
         self.ui = ui
 
         c = ui.ui_config["ids"]
@@ -128,8 +129,7 @@ class SoundyPlayer:
                 self.state = STATE_PLAYING
                 pygame.event.post(pygame.event.Event(self.play_start_event, play_list_name=pl.play_list_name(), song=pl.get_current_song_num(), num_songs=pl.num_songs(), beep=event.beep))
             except Exception as e:
-                print(e)
-                pygame.event.post(pygame.event.Event(self.comm_error))
+                pygame.event.post(pygame.event.Event(self.event_err_gen, err_type=soundy_errs.ERR_TYPE_FILE, err_msg=str(e)))
                 pl.set_play_time(restore_play_time)
                 pl.set_current_song_num(restore_title)
 
@@ -171,8 +171,8 @@ class SoundyPlayer:
             self.handle_remove_event(event)
         elif event.type == self.play_end:
             self.handle_song_end()
-        elif event.type == self.comm_error:
-            self.ui.handle_error()
+        elif event.type == self.event_err_gen:
+            self.ui.handle_error(event.err_type, event.err_msg)
         elif event.type == self.function_event:
             self.ui.handle_function_event(event)
         elif event.type == self.play_start_event:
@@ -203,12 +203,12 @@ def main():
     event_insert = pygame.event.custom_type()
     event_remove = pygame.event.custom_type()
     event_music_end = pygame.event.custom_type()
-    event_comm_error = pygame.event.custom_type()
     event_function = pygame.event.custom_type()
     event_playing = pygame.event.custom_type()
     event_pause = pygame.event.custom_type()
     event_list_end = pygame.event.custom_type()
     event_ui_stopped = pygame.event.custom_type()
+    event_err_generic = pygame.event.custom_type()
     pygame.mixer.music.set_endevent(event_music_end)
 
     config_dir ="./"
@@ -218,10 +218,10 @@ def main():
     ui = soundy_ui.SoundyUI(event_ui_stopped)
     ui.load_config(config_dir)
 
-    player = SoundyPlayer(ui, event_insert, event_remove, event_music_end, event_comm_error, event_function, event_playing, event_pause, event_list_end, event_ui_stopped)
+    player = SoundyPlayer(ui, event_insert, event_remove, event_music_end, event_function, event_playing, event_pause, event_list_end, event_ui_stopped, event_err_generic)
     player.load_playlists(config_dir)
 
-    card_manager = cardy.CardManager(ALL_ATRS, desfire.DESFireUidReader(ATR_DES_FIRE), event_insert, event_remove, event_comm_error)
+    card_manager = cardy.CardManager(ALL_ATRS, desfire.DESFireUidReader(ATR_DES_FIRE), event_insert, event_remove, event_err_generic)
     card_manager.start()
 
     init_reader(ui.ui_config["wait_reader_sec"])

@@ -2,9 +2,11 @@ import os
 import json
 import pygame
 import soundy
+import soundy_errs
 
 EMPTY_STR = '                           '
 STD_MSG = "Hallo Erna"
+
 
 class SoundyUI:
     def __init__(self, event_ui_stopped):
@@ -12,6 +14,7 @@ class SoundyUI:
         self.white = (255, 255, 255)
         self.black = (0, 0, 0)
         self.red = (255, 0, 0)
+        self.blue = (0, 0, 255)
         self._x_size = 800
         self._y_size = 600
         self._text = STD_MSG
@@ -19,6 +22,10 @@ class SoundyUI:
         self._background_col = self.white
         self._font_size = 48
         self._func_font_size = 32
+        self._err_map = {
+            soundy_errs.ERR_TYPE_COMM: self.red,
+            soundy_errs.ERR_TYPE_FILE: self.blue
+        }
 
     def load_config(self, config_dir):
         try:
@@ -67,18 +74,22 @@ class SoundyUI:
         sound = pygame.mixer.Sound(self._sound_error)
         sound.play()
 
-    def handle_error(self):
+    def handle_error(self, err_type, err_msg):
+        print(err_msg)
         h = self._text
         b = self._background_col
 
-        self._background_col = self.red
+        self._background_col = self._err_map[err_type]
         self.redraw()
         pygame.display.update()
         pygame.time.wait(175)
 
         self._text = h
         self._background_col = b
-        self.redraw()
+        self.redraw()        
+
+    def handle_comm_error(self):
+        self.handle_error(soundy_errs.ERR_TYPE_COMM)
 
     def handle_play_start(self, event):
         if event.beep:
