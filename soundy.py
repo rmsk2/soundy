@@ -13,7 +13,6 @@ import playlist
 import soundy_ui
 from soundyconsts import *
 
-
 ATR_DES_FIRE = "3B 81 80 01 80 80"
 ATR_E_PERSO = "3B 84 80 01 80 82 90 00 97"
 ATR_GIRO = "3B 87 80 01 80 31 C0 73 D6 31 C0 23"
@@ -60,7 +59,7 @@ class SoundyPlayer:
 
             titles_raw = list(map(playlist.PlayList.from_json, all_files))
         except:
-            print("Kann Playlisten nicht laden")
+            print(ERR_MSG_LOAD_PLAYLIST)
             sys.exit(42)
 
         self.titles = {}

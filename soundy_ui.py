@@ -4,9 +4,6 @@ import pygame
 import soundy
 from soundyconsts import *
 
-EMPTY_STR = '                           '
-STD_MSG = "Hallo Erna"
-
 
 class SoundyUI:
     def __init__(self, event_ui_stopped):
@@ -34,7 +31,7 @@ class SoundyUI:
             with(open(os.path.join(config_dir, "ui_config"), "r") as f):
                 all_data = json.load(f)
         except:
-            print("Kann Konfiguration nicht laden")
+            print(ERR_MSG_LOAD_CONFIG)
             os.exit(42)
         
         data = all_data["sounds"]
@@ -76,7 +73,7 @@ class SoundyUI:
 
     def start(self):
         self._display_surface = pygame.display.set_mode((self._x_size, self._y_size))
-        pygame.display.set_caption("Ernas Hörbuchspieler")
+        pygame.display.set_caption(CAPTION_DEFAULT)
         self._font = pygame.font.Font('freesansbold.ttf', self._font_size)
         self._func_font = pygame.font.Font('freesansbold.ttf', self._func_font_size)
 
@@ -105,12 +102,15 @@ class SoundyUI:
         if event.beep:
             self.sound_bell()
 
-        self._text = f"Kapitel {event.song + 1} von {event.num_songs}"
+        self._text = MSG_PLAY_FORMAT_STR.format(song=event.song, num_songs=event.num_songs)
+        pygame.display.set_caption(event.play_list_name)
 
     def handle_pause(self):
+        pygame.display.set_caption(CAPTION_DEFAULT)
         self._text = STD_MSG
 
     def handle_list_end(self):
+        pygame.display.set_caption(CAPTION_DEFAULT)
         self._text = STD_MSG
 
     def handle_function_event(self, event):
@@ -119,12 +119,12 @@ class SoundyUI:
             pygame.time.wait(200)
             pygame.event.post(pygame.event.Event(self.stopped_event))
         elif event.kind == FUNC_PLAYLIST_RESTART:
-            self._func_text = "Hörbuch von Anfang an hören"
+            self._func_text = MSG_PLAYLIST_BEGINING
         elif event.kind == FUNC_SONG_RESTART:
-            self._func_text =  "Zurück zum Anfang des Kapitels"
+            self._func_text =  MSG_RESTART_SONG
         elif event.kind == FUNC_SONG_SKIP:
-            self._func_text =  "Zum nächsten Kapitel"
+            self._func_text =  MSG_SKIP_SONG
         elif event.kind == FUNC_SONG_PREV:
-            self._func_text = "Zum vorherigen Kapitel"
+            self._func_text = MSG_NEXT_SONG
         elif event.kind == FUNC_PERFORMED:
             self._func_text = EMPTY_STR
