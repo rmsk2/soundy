@@ -30,7 +30,7 @@ class DesFireCardIdObserver(CardObserver):
 
 
 if __name__ == "__main__":
-    print("Insert a DESFire card in the system.")
+    print("Put a DESFire card on the reader to get its id")
     cardmonitor = CardMonitor()
     selectobserver = DesFireCardIdObserver()
     cardmonitor.addObserver(selectobserver)
