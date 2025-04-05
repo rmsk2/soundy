@@ -23,12 +23,14 @@ that make using the UI of modern computers difficult or impractical. This is (ho
 of using a piece of software via a mouse or touch controlled GUI into a series of simple manual interactions which require 
 the user to place easy to handle physical objects (smartcards) on a certain location (the reader).
 
-# Supported cards and readers
-
 This software is written in Python and depends on [`pygame`](https://www.pygame.org/docs/) for implemeting the UI and 
 `pyscard` for handling card access. [`pyscard`](https://github.com/LudovicRousseau/pyscard) in turn relies on the `pcscd` 
 daemon which abstracts away access to smartcard readers on Linux and macOS. On Windows `PCSC` is part of the operating 
-system. This software can use any card and reader combination which is supported by `pyscard`.
+system. This software can use any card and reader combination which is supported by `pyscard`. I developed this software
+under Linux and I have successfully installed it on an older MacBook. I see no reason why it should not work under Windows 
+but I have not tested this, yet.
+
+# Supported cards and readers
 
 Cards are identified by this software primarily by their Answer To Reset or ATR, which is a sequence of bytes that is 
 automatically sent by a smartcard as soon as it is powered on. Different types of cards have different ATRs but two cards 
@@ -59,5 +61,68 @@ to me.
 
 As `id_gen.py` simply calculates a hash over the serial number read from the card and uses the first two bytes of this
 hash as an id (see method `uid_to_card_id()` of class `DESFireUidReader` in `desfire.py`) it is not that unlikely that two
-of your cards are assigned the same id. In that case you could use some other bytes from the hash or hash some additional data
-to make sure all of your cards end up having a different id.
+of your cards are assigned the same id. In that case you could use some other bytes from the hash, hash some additional data
+or use more hash bytes to make sure all of your cards end up having a different id.
+
+# Configuration
+
+You can run this software though the command `python3 sound.py <config_dir>`. Maybe you have to replace `python3` by `python`
+depending on your system. The config dir is optional. If it is mssing the current directory is used. When started the program
+reads the file `ui_config` in the config die and interprets any `.json` file in this directory as a playlist.
+
+## Of program
+
+The overall config of this software is split between two files: `ui_config` and `soundyconsts.py`. In the JSON file `ui_config`
+under `sounds` you can  configure the sounds which are played when for instance an error occurs or a card is successfully read
+by referencing a corresponding file. Any file format supported by [`pygame`](https://www.pygame.org/docs/ref/mixer.html#pygame.mixer.Sound) 
+can be used here. Acordding to th documentation currently OGG and WAV are supported for this purpose. Please note that this limitation 
+does not apply to the music files on the playlist. These can be [MP3 or OGG](https://www.pygame.org/docs/ref/music.html#pygame.mixer.music).
+
+In the `ids` "section" you can configure which cards are used as `function cards` as specified by their id. As written above the
+card ids of DESFire cards can de determined using `id_gen.py`. The ids of cards which are identified by their ATR only is determined
+by their position in the list `ALL_ATRS` contained in the module `soundy.py`.
+
+The "section" `size` specifies the size of the UI in pixels as well as the font sizes used for displaying text. Finally the "key" 
+`wait_reader_sec` determines how long the software waits for the reader to become ready. The messages displayed on the UI can
+be customized in the file `soundyconsts.py`.
+
+## Of playlists
+
+Any `.json` file in the config dir is interpreted by this software as a playlist. playlists have to have the following structure.
+
+```
+{
+    "play_list": "Test playlist",
+    "file_name": "./test_play_list.json",
+    "current_title": 0,
+    "play_time": 0.0,
+    "card_id": 28435,
+    "data_dir": "/user/test/testdata",
+    "titles": [
+        "track1.mp3",
+        "track2.mp3",
+        "track3.mp3"
+    ]
+}
+
+```
+
+The "key" `play_list` can be used to set the name of the playlist. This will also occur in the title bar of the window in which the UI will
+be displayed. `file_name` is set to the file name under which the playlist was read upon program start. This information is used when a
+playlist needs to be updated on disk by the program. `current_title` holds the zero based index of the track which would be played and
+`play_time` is used to determine the offset in seconds into this file. This is used to restart playback on the same spot where it was stopped.
+For this to work 100% reliably, MP3 files should not be encoded with a varible bit rate. This is 
+[a limitation](https://www.pygame.org/docs/ref/music.html#pygame.mixer.music.play) of `pygame`. The value `card_id` determines the id of the
+card which is used as the `playlist card` for this playlist. As described above these ids can be determined by `id_gen.py` for DESFire cards
+and by the position of its ATR in `ALL_ATRS` for all other cards.
+
+`data_dir` specifies the directory in which the actual sound files are stored. The list `titles` specifies the names and positions of the 
+individual tracks on this playlist. You can use the program `dir_list.py` from this repo to generate this list by starting 
+`python3 dir_list.py <dir to list> <out_file>` where the first parameter has to specify the directory to list and the second determines the output
+file. The output is generated in the lexical order used by the `sort()` method of `list`.
+
+# Installation on macOS
+
+I installed `pcscd` and Python 3.12 via `brew` which both worked without a problem. Unfortunatley this has precluded me
+from installing `pyscard` and `pygame` via `pip3` as global modules. The workaround is to install them in a Python virtual
+environment and run this software also from the venv.
