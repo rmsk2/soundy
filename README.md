@@ -77,7 +77,7 @@ of the background in blue.
 The overall config of this software is split between two files: `ui_config` and `soundyconsts.py`. In the JSON file `ui_config`
 under `sounds` you can  configure the sounds which are played when for instance an error occurs or a card is successfully read
 by referencing a corresponding file. Any file format supported by [`pygame`](https://www.pygame.org/docs/ref/mixer.html#pygame.mixer.Sound) 
-can be used here. Acordding to th documentation currently OGG and WAV are supported for this purpose. Please note that this limitation 
+can be used here. Acordding to the documentation currently OGG and WAV are supported for this purpose. Please note that this limitation 
 does not apply to the music files on the playlist. These can be [MP3 or OGG](https://www.pygame.org/docs/ref/music.html#pygame.mixer.music).
 
 In the `ids` "section" you can configure which cards are used as `function cards` as specified by their id. As written above the
