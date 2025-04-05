@@ -88,7 +88,7 @@ be customized in the file `soundyconsts.py`.
 
 ## Of playlists
 
-Any `.json` file in the config dir is interpreted by this software as a playlist. playlists have to have the following structure.
+Any `.json` file in the config dir is interpreted as a playlist. playlists have to have the following structure.
 
 ```
 {
