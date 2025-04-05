@@ -72,7 +72,7 @@ reads the file `ui_config` in the config dir and interprets any `.json` file in 
 reading a card is encountered the background of the UI flashes red once. An error reading a file is signalled by a single flashing
 of the background in blue.
 
-## Of program
+## Config of program
 
 The overall config of this software is split between two files: `ui_config` and `soundyconsts.py`. In the JSON file `ui_config`
 under `sounds` you can  configure the sounds which are played when for instance an error occurs or a card is successfully read
@@ -88,7 +88,7 @@ The "section" `size` specifies the size of the UI in pixels as well as the font 
 `wait_reader_sec` determines how long the software waits for the reader to become ready. The messages displayed on the UI can
 be customized in the file `soundyconsts.py`.
 
-## Of playlists
+## Config of playlists
 
 Any `.json` file in the config dir is interpreted as a playlist. playlists have to have the following structure.
 
