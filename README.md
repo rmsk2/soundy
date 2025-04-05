@@ -27,8 +27,8 @@ This software is written in Python and depends on [`pygame`](https://www.pygame.
 `pyscard` for handling card access. [`pyscard`](https://github.com/LudovicRousseau/pyscard) in turn relies on the `pcscd` 
 daemon which abstracts away access to smartcard readers on Linux and macOS. On Windows `PCSC` is part of the operating 
 system. This software can use any card and reader combination which is supported by `pyscard`. I developed this software
-under Linux and I have successfully installed it on an older MacBook. I see no reason why it should not work under Windows 
-but I have not tested this, yet.
+under Linux and I have successfully installed it on an older MacBook. I see no principal reason why it should not work 
+under Windows but I have not tested this, yet.
 
 # Supported cards and readers
 
@@ -118,7 +118,7 @@ and by the position of its ATR in `ALL_ATRS` for all other cards.
 
 `data_dir` specifies the directory in which the actual sound files are stored. The list `titles` specifies the names and positions of the 
 individual tracks on this playlist. You can use the program `dir_list.py` from this repo to generate this list by starting 
-`python3 dir_list.py <dir to list> <out_file>` where the first parameter has to specify the directory to list and the second determines the output
+`python3 dir_list.py <dir to list> <out_file>`. The first parameter has to specify the directory to list and the second determines the output
 file. The output is generated in the lexical order used by the `sort()` method of `list`.
 
 # Installation on macOS
