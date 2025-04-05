@@ -1,0 +1,13 @@
+{
+    "play_list": "Test playlist",
+    "file_name": "./test_play_list.json",
+    "current_title": 0,
+    "play_time": 0.0,
+    "card_id": 51918,
+    "data_dir": "/user/test/testdata",
+    "titles": [
+        "track1.mp3",
+        "track2.mp3",
+        "track3.mp3"
+    ]
+}
