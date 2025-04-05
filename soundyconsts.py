@@ -11,9 +11,9 @@ ERR_TYPE_FILE = 2
 ERR_MSG_LOAD_PLAYLIST = "Kann Playlisten nicht laden"
 
 EMPTY_STR = '                           '
-STD_MSG = "Hallo Erna"
+STD_MSG = "Hallo"
 
-CAPTION_DEFAULT = "Ernas Hörbuchspieler"
+CAPTION_DEFAULT = "Einfacher Hörbuchspieler"
 ERR_MSG_LOAD_CONFIG = "Kann Konfiguration nicht laden"
 MSG_PLAYLIST_BEGINING = "Hörbuch von Anfang an hören"
 MSG_RESTART_SONG = "Zurück zum Anfang des Kapitels"
