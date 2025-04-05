@@ -64,11 +64,13 @@ hash as an id (see method `uid_to_card_id()` of class `DESFireUidReader` in `des
 of your cards are assigned the same id. In that case you could use some other bytes from the hash, hash some additional data
 or use more hash bytes to make sure all of your cards end up having a different id.
 
-# Configuration
+# Run the software and configuration
 
 You can run this software though the command `python3 sound.py <config_dir>`. Maybe you have to replace `python3` by `python`
 depending on your system. The config dir is optional. If it is mssing the current directory is used. When started the program
-reads the file `ui_config` in the config die and interprets any `.json` file in this directory as a playlist.
+reads the file `ui_config` in the config dir and interprets any `.json` file in this directory as a playlist. When an error
+reading a card is encountered the background of the UI flashes red once. An error reading a file is signalled by a single flashing
+of the background in blue.
 
 ## Of program
 
