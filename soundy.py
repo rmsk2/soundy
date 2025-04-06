@@ -193,7 +193,7 @@ def main():
     mixer.pre_init(44100, -16, 2, 2048)
     pygame.init()
     mixer.init()
-    os.system('clear')
+    os.system(CLEAR_COMMAND)
 
     event_insert = pygame.event.custom_type()
     event_remove = pygame.event.custom_type()

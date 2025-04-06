@@ -8,6 +8,8 @@ FUNC_SONG_PREV = 5
 ERR_TYPE_COMM = 1
 ERR_TYPE_FILE = 2
 
+CLEAR_COMMAND = 'clear'
+
 ERR_MSG_LOAD_PLAYLIST = "Unable to load playlists"
 
 EMPTY_STR = '                                  '

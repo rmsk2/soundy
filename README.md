@@ -86,7 +86,8 @@ by their position in the list `ALL_ATRS` contained in the module `soundy.py`.
 
 The "section" `size` specifies the size of the UI in pixels as well as the font sizes used for displaying text. Finally the "key" 
 `wait_reader_sec` determines how long the software waits for the reader to become ready. The messages displayed on the UI can
-be customized in the file `soundyconsts.py`.
+be customized in the file `soundyconsts.py` as can be the command which is used to clear the console after program start. Please
+change the constant `CLEAR_COMMAND` to `cls` under Windows.
 
 ## Config of playlists
 
