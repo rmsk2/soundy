@@ -117,13 +117,14 @@ zero based index of the track which would be played and `play_time` is used to d
 playback on the same spot where it was stopped. For this to work 100% reliably, MP3 files should not be encoded with a variable bit rate. This is 
 [a limitation](https://www.pygame.org/docs/ref/music.html#pygame.mixer.music.play) of `pygame`. The value `card_id` determines the id of the
 card which is used as the `playlist card` for this playlist. As described above these ids can be determined by `id_gen.py` for DESFire cards
-and by the position of its ATR in `ALL_ATRS` for all other cards.
+and by the position of its ATR in `ALL_ATRS` for all other cards. `data_dir` specifies the directory in which the actual sound files are stored.
+The list `titles` specifies the names and positions of the individual tracks on this playlist, i.e. the sequence in this list determines the sequence
+in which these tracks are played back. 
 
-`data_dir` specifies the directory in which the actual sound files are stored. The list `titles` specifies the names and positions of the 
-individual tracks on this playlist, i.e. the sequence in this list determines the sequence in which these tracks are played back. You can use 
-the program `dir_list.py` from this repo to replace the contents of the `titles` list of an *existing* playlist file with the directory listing of
-a given directory by executing `python3 dir_list.py <dir to list> <playlist file to modify>`. The first parameter has to specify the directory to 
-list and the second determines the playlist file to modify. The output is generated in the lexical order used by the `sort()` method of `list`.
+You can use the program `create_list.py` from this repo to create a new playist. Execute `python3 create_list.py <dir to list> <new playlist file>`,
+where `<dir to list>` is the directory which contains the music files of the playlist and `<new playlist file>` has to specify the name of the file
+in which the new playslist is to be saved. The contents of the given directory is listed, sorted and added to the playlist as its `titles` component.
+Additionally you have to enter a name for the playlist and the the id of the corresponding `playlist card`.
 
 # Installation on macOS
 
