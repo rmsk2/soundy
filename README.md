@@ -18,10 +18,10 @@ again. The UI then shows a text that says that the playlist which is selected by
 restarted. This command is executed as soon as the next `playlist card` is put on the RFID reader. Restarting a track
 would be achieved by placing the `restart function card` on the reader followed by the corresponding `playlist card`.
 
-The whole purpose behind all this is to increase accessibility of audio books for persons which are impaired in such ways
+The whole purpose behind all this is to increase accessibility of audio books for persons who are impaired in such ways
 that make using the UI of modern computers difficult or impractical. This is (hopefully) achieved by transforming the task 
 of using a piece of software via a mouse or touch controlled GUI into a series of simple manual interactions which require 
-the user to place easy to handle physical objects (smartcards) on a certain location (the reader).
+the user to place easy to handle physical objects (smartcards) at a certain location (the reader).
 
 This software is written in Python and depends on [`pygame`](https://www.pygame.org/docs/) for implemeting the UI and 
 `pyscard` for handling card access. [`pyscard`](https://github.com/LudovicRousseau/pyscard) in turn relies on the `pcscd` 
