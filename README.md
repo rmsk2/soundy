@@ -121,7 +121,7 @@ and by the position of its ATR in `ALL_ATRS` for all other cards. `data_dir` spe
 The list `titles` specifies the names and positions of the individual tracks on this playlist, i.e. the sequence in this list determines the sequence
 in which these tracks are played back. 
 
-You can use the program `create_list.py` from this repo to create a new playist. Execute `python3 create_list.py <dir to list> <new playlist file>`,
+You can use the program `create_list.py` from this repo to create a new playlist. Execute `python3 create_list.py <dir to list> <new playlist file>`,
 where `<dir to list>` is the directory which contains the music files of the playlist and `<new playlist file>` has to specify the name of the file
 in which the new playslist is to be saved. The contents of the given directory is listed, sorted and added to the playlist as its `titles` component.
 Additionally you have to enter a name for the playlist and the the id of the corresponding `playlist card`.
