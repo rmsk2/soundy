@@ -121,12 +121,25 @@ and by the position of its ATR in `ALL_ATRS` for all other cards.
 
 `data_dir` specifies the directory in which the actual sound files are stored. The list `titles` specifies the names and positions of the 
 individual tracks on this playlist, i.e. the sequence in this list determines the sequence in which these tracks are played back. You can use 
-the program `dir_list.py` from this repo to generate this list by executing  `python3 dir_list.py <dir to list> <out_file>`. The first parameter
-has to specify the directory to list and the second determines the output file. The output is generated in the lexical order used by the `sort()` 
-method of `list`.
+the program `dir_list.py` from this repo to replace the contents of the `titles` list of an *existing* playlist file with the directory listing of
+a given directory by executing `python3 dir_list.py <dir to list> <playlist file to modify>`. The first parameter has to specify the directory to 
+list and the second determines the playlist file to modify. The output is generated in the lexical order used by the `sort()` method of `list`.
 
 # Installation on macOS
 
 I installed `pcscd` and Python 3.12 via `brew` which both worked without a problem. Unfortunatley this has precluded me
 from installing `pyscard` and `pygame` via `pip3` as global modules. The workaround is to install them in a Python virtual
 environment and run this software also from the venv.
+
+# Other considerations
+
+This chapter mentions some other aspects which can be important when putting this software to use for its intended purpose of supporting impaired
+persons. In my specific case I wanted to make sure that the user is never forced to interact with the operating system of the machine on which
+this software runs. My ideal scenario was that the user simply opens a Laptop, the machine boots, the user is automatically logged in and the 
+program is started automatically without additional intervention. On top of that the machine should never go into sleep mode and the whole setup 
+should not be adversely affected if the user closes the laptop and reopens it. I solved all this by configuring an older macBook correspondingly.
+
+Another potential problem was created by the power management functions of some PC speakers which turn themselves off when no sound is played 
+but fail to turn themselves back on again when playing back the audio book is resumed. I solved this problem by playing a "beep" sound each time 
+a card was successfully read which not only provides feedback to the user that the card was read but also wakes up the speakers much more realiably
+than playing back the contents of an audio book.
