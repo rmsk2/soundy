@@ -8,15 +8,15 @@ FUNC_SONG_PREV = 5
 ERR_TYPE_COMM = 1
 ERR_TYPE_FILE = 2
 
-ERR_MSG_LOAD_PLAYLIST = "Kann Playlisten nicht laden"
+ERR_MSG_LOAD_PLAYLIST = "Unable to load playlists"
 
-EMPTY_STR = '                           '
-STD_MSG = "Hallo"
+EMPTY_STR = '                                  '
+STD_MSG = "Hello"
 
-CAPTION_DEFAULT = "Einfacher Hörbuchspieler"
-ERR_MSG_LOAD_CONFIG = "Kann Konfiguration nicht laden"
-MSG_PLAYLIST_BEGINING = "Hörbuch von Anfang an hören"
-MSG_RESTART_SONG = "Zurück zum Anfang des Kapitels"
-MSG_SKIP_SONG = "Zum nächsten Kapitel"
-MSG_NEXT_SONG = "Zum vorherigen Kapitel"
-MSG_PLAY_FORMAT_STR = "Kapitel {song} von {num_songs}"
+CAPTION_DEFAULT = "Simple audio book player"
+ERR_MSG_LOAD_CONFIG = "Unable to load configuration"
+MSG_PLAYLIST_BEGINING = "Go back to beginning of audio book"
+MSG_RESTART_SONG = "Go back to beginning of chapter"
+MSG_SKIP_SONG = "To next chapter"
+MSG_NEXT_SONG = "To previous chapter"
+MSG_PLAY_FORMAT_STR = "Chapter {song} of {num_songs}"

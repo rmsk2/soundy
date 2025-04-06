@@ -119,7 +119,7 @@ class SoundyPlayer:
                 mixer.music.play(start = start_pos)
                 self.playing_id = event.card_id
                 self.state = STATE_PLAYING
-                pygame.event.post(pygame.event.Event(self.play_start_event, play_list_name=pl.play_list_name(), song=pl.get_current_song_num(), num_songs=pl.num_songs(), beep=event.beep))
+                pygame.event.post(pygame.event.Event(self.play_start_event, play_list_name=pl.play_list_name(), song=pl.get_current_song_num()+1, num_songs=pl.num_songs(), beep=event.beep))
             except Exception as e:
                 pygame.event.post(pygame.event.Event(self.event_err_gen, err_type=ERR_TYPE_FILE, err_msg=str(e)))
                 pl.set_play_time(restore_play_time)
