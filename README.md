@@ -3,7 +3,7 @@
 The main idea behind this software is to allow the user to control playback of tracks on a playlist via
 RFID capable smartcards. I.e. the user can start playback of a playlist by putting a corresponding smartcard 
 (called a `playlist card`) on the reader and pausing playback by removing the card from the reader again. 
-The playlist which is played back depends on smartcard which is placed on the reader. I.e. different 
+The playlist which is played back depends on the identity of smartcard which is placed on the reader. I.e. different 
 playlist cards cause different playlists to be played. In addition to that the user can control the following 
 aspects via another set of smartcards called `function cards`.
 
@@ -13,12 +13,12 @@ aspects via another set of smartcards called `function cards`.
 - Go to the previous track
 - End the program
 
-For instance one would restart a playlist by first placing the `restart function card` on the reader and removing it
+For instance one would restart a playlist by first placing the `rewind function card` on the reader and removing it
 again. The UI then shows a text that says that the playlist which is selected by the next `playlist card` is 
 restarted. This command is executed as soon as the next `playlist card` is put on the RFID reader. Restarting a track
-would be achieved by placing the `restart function card` on the reader followed by the corresponding `playlist card`.
+would be achieved by first placing the `restart function card` on the reader followed by the corresponding `playlist card`.
 
-The whole purpose behind all this is to increase accessibility of audio books for persons who are impaired in such ways
+The whole purpose behind all this is to increase the accessibility of audio books for persons who are impaired in such ways
 that make using the UI of modern computers difficult or impractical. This is (hopefully) achieved by transforming the task 
 of using a piece of software via a mouse or touch controlled GUI into a series of simple manual interactions which require 
 the user to place easy to handle physical objects (smartcards) at a certain location (the reader).
@@ -77,7 +77,7 @@ of the background in blue.
 The overall config of this software is split between two files: `ui_config` and `soundyconsts.py`. In the JSON file `ui_config`
 under `sounds` you can  configure the sounds which are played when for instance an error occurs or a card is successfully read
 by referencing a corresponding file. Any file format supported by [`pygame`](https://www.pygame.org/docs/ref/mixer.html#pygame.mixer.Sound) 
-can be used here. Acordding to the documentation currently OGG and WAV are supported for this purpose. Please note that this limitation 
+can be used here. According to the documentation currently OGG and WAV are supported for this purpose. Please note that this limitation 
 does not apply to the music files on the playlist. These can be [MP3 or OGG](https://www.pygame.org/docs/ref/music.html#pygame.mixer.music).
 
 In the `ids` "section" you can configure which cards are used as `function cards` as specified by their id. As written above the
@@ -111,18 +111,19 @@ Any `.json` file in the config dir is interpreted as a playlist. playlists have 
 ```
 
 The "key" `play_list` can be used to set the name of the playlist. This will also occur in the title bar of the window in which the UI will
-be displayed. `file_name` is set to the file name under which the playlist was read upon program start. This information is used when a
-playlist needs to be updated on disk by the program. `current_title` holds the zero based index of the track which would be played and
-`play_time` is used to determine the offset in seconds into this file. This is used to restart playback on the same spot where it was stopped.
-For this to work 100% reliably, MP3 files should not be encoded with a varible bit rate. This is 
+be displayed. `file_name` is set to the file name under which the playlist was read upon program start. It can be set to the empty string if 
+you create a new playlist by hand. This information is used when a playlist needs to be updated on disk by the program. `current_title` holds the 
+zero based index of the track which would be played and `play_time` is used to determine the offset in seconds into this file. This is used to restart 
+playback on the same spot where it was stopped. For this to work 100% reliably, MP3 files should not be encoded with a variable bit rate. This is 
 [a limitation](https://www.pygame.org/docs/ref/music.html#pygame.mixer.music.play) of `pygame`. The value `card_id` determines the id of the
 card which is used as the `playlist card` for this playlist. As described above these ids can be determined by `id_gen.py` for DESFire cards
 and by the position of its ATR in `ALL_ATRS` for all other cards.
 
 `data_dir` specifies the directory in which the actual sound files are stored. The list `titles` specifies the names and positions of the 
-individual tracks on this playlist. You can use the program `dir_list.py` from this repo to generate this list by starting 
-`python3 dir_list.py <dir to list> <out_file>`. The first parameter has to specify the directory to list and the second determines the output
-file. The output is generated in the lexical order used by the `sort()` method of `list`.
+individual tracks on this playlist, i.e. the sequence in this list determines the sequence in which these tracks are played back. You can use 
+the program `dir_list.py` from this repo to generate this list by executing  `python3 dir_list.py <dir to list> <out_file>`. The first parameter
+has to specify the directory to list and the second determines the output file. The output is generated in the lexical order used by the `sort()` 
+method of `list`.
 
 # Installation on macOS
 
