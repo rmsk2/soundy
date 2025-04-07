@@ -36,11 +36,19 @@ Cards are identified by this software primarily by their Answer To Reset or ATR,
 automatically sent by a smartcard as soon as it is powered on. Different types of cards have different ATRs but two cards 
 of the same type have identical ATRs. You can use `id_gen.py`, which is part of this repo, to read the ATR of RFID capable 
 smartcards you may have lying around. If you manage to find at least six different cards with different ATRs you can use them
-to control the five functions mentioned above and one playlist.
+to control the five functions mentioned above and one playlist. I have tested the following cards or RFID capable devices
 
-Hunting for a usable set of cards seemed to be impractical in the long run, so another solution was needed. Different
-smartcard families allow to identify cards which are part of this family by a unique card serial number and offer commands 
-to read this serial number from the card. As I had some preexisting knowledge with respect to DESFire cards and as blank
+- The German national ID card (ePA)
+- The German health system card (eGK)
+- Bank cards
+- Credit cards
+- Different company badges
+- Yubikeys and other security sticks
+- Fido tokens
+
+Hunting for a usable set of cards or other RFID enabled devices seemed to be impractical in the long run, so another solution was 
+needed. Different smartcard families allow to identify cards which are part of this family by a unique card serial number and offer
+commands to read this serial number from the card. As I had some preexisting knowledge with respect to DESFire cards and as blank
 DESFire cards are sold for instance on Amazon I decided to implement reading the serial number of DESFire cards as
 an alternative to the ATR for identifying individual cards. 
 
@@ -48,16 +56,20 @@ It also seemed to be impractical to use the full seven byte serial number in the
 `id_gen.py` calculates and prints a simplified card id for each DESFire card which is placed on the reader
 
 ```
-Put a DESFire card on the reader to get its id
+Put a (DESFire) card on the reader to get its id
 Press Enter to stop
 
-Card Id: 60798
+Not a DESFire card. ATR 3B 88 80 01 89 01 A0 11 20 20 09 07 3E
+Card type unknown
 Not a DESFire card. ATR 3B 84 80 01 80 82 90 00 97
+Card type is known and has id 0
+Card Id: 51918
 ```
 
-or the full ATR for non DESFire cards. You might say that using a smartcard intended for security purposes in a scenario like
-this is totally overblown and you are right. But that is what seemed to work with my reader and the software stack available
-to me. 
+or the full ATR for non DESFire cards as well as their id if the card type is known. You might say that using a smartcard intended 
+for security purposes in a scenario like this is totally overblown and you are right. But that is what seemed to work with my reader
+and the software stack immediately available to me. If I end up owning a reader that can read simple RFID tags and if these
+are compatible with `pyscard` then maybe I will adapt this software accordingly.
 
 As `id_gen.py` simply calculates a hash over the serial number read from the card and uses the first two bytes of this
 hash as an id (see method `uid_to_card_id()` of class `DESFireUidReader` in `desfire.py`) it is not that unlikely that two
@@ -81,8 +93,8 @@ can be used here. According to the documentation currently OGG and WAV are suppo
 does not apply to the music files on the playlist. These can be [MP3 or OGG](https://www.pygame.org/docs/ref/music.html#pygame.mixer.music).
 
 In the `ids` "section" you can configure which cards are used as `function cards` as specified by their id. As written above the
-card ids of DESFire cards can de determined using `id_gen.py`. The ids of cards which are identified by their ATR only is determined
-by their position in the list `ALL_ATRS` contained in the module `soundy.py`.
+card ids of DESFire and other cards known to this software can de determined using `id_gen.py`. The ids of cards which are identified 
+by their ATR only is determined by their position in the list `ALL_ATRS` contained in the module `soundyconsts.py`.
 
 The "section" `size` specifies the size of the UI in pixels as well as the font sizes used for displaying text. Finally the "key" 
 `wait_reader_sec` determines how long the software waits for the reader to become ready. The messages displayed on the UI can
@@ -123,7 +135,7 @@ in which these tracks are played back.
 
 You can use the program `create_list.py` from this repo to create a new playlist. Execute `python3 create_list.py <dir to list> <new playlist file>`,
 where `<dir to list>` is the directory which contains the music files of the playlist and `<new playlist file>` has to specify the name of the file
-in which the new playslist is to be saved. The contents of the given directory is listed, sorted and added to the playlist as its `titles` component.
+in which the new playlist is to be saved. The contents of the given directory is listed, sorted and added to the playlist as its `titles` component.
 Additionally you have to enter a name for the playlist and the the id of the corresponding `playlist card`.
 
 # Installation on macOS
