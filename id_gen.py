@@ -1,21 +1,26 @@
 #! /usr/bin/env python3
 
+import os
 from smartcard.CardMonitoring import CardMonitor, CardObserver
 from smartcard.util import toHexString
 import desfire
 from soundyconsts import *
+import cardy
 
 
-class DesFireCardIdObserver(CardObserver):
-    def __init__(self):
-        self._des_fire = desfire.DESFireUidReader(ATR_DES_FIRE)
+class CardIdObserver(CardObserver):
+    def __init__(self, uid_reader):
+        if not isinstance(uid_reader, cardy.IUidReader):
+            raise Exception("Wrong type")
+        
+        self._uid_reader = uid_reader
 
     def update(self, _, actions):
         (addedcards, removedcards) = actions
         for card in addedcards:
             atr_txt = toHexString(card.atr)
-            if atr_txt != ATR_DES_FIRE:
-                print(f"Not a DESFire card. ATR {atr_txt}")
+            if atr_txt != self._uid_reader.get_atr():
+                print(f"Not a {self._uid_reader.get_name()} card. ATR {atr_txt}")
 
                 if atr_txt in ALL_ATRS:
                     for i in range(len(ALL_ATRS)):
@@ -25,9 +30,9 @@ class DesFireCardIdObserver(CardObserver):
                     print("Card type unknown")
                 return
             
-            res, ok = self._des_fire.make_card_id(card, -1)
+            res, ok = self._uid_reader.make_card_id(card, -1)
             if not ok:
-                print("Error reading DESFire card")
+                print(f"Error reading {self._uid_reader.get_name()} card")
                 return
 
             print(f"Card Id: {res}")
@@ -38,10 +43,12 @@ class DesFireCardIdObserver(CardObserver):
 
 if __name__ == "__main__":
     try:
-        print("Put a (DESFire) card on the reader to get its id")
+        os.system(CLEAR_COMMAND)
+        uid_reader = desfire.DESFireUidReader(ATR_DES_FIRE)
+        print(f"Put a ({uid_reader.get_name()}) card on the reader to get its id")
         cardmonitor = CardMonitor()
-        selectobserver = DesFireCardIdObserver()
-        cardmonitor.addObserver(selectobserver)
+        uid_observer = CardIdObserver(uid_reader)
+        cardmonitor.addObserver(uid_observer)
 
         input("Press Enter to stop\n\n")
     except KeyboardInterrupt:
@@ -49,4 +56,4 @@ if __name__ == "__main__":
     except Exception as e:
         print(e)
     finally:
-        cardmonitor.deleteObserver(selectobserver)
+        cardmonitor.deleteObserver(uid_observer)

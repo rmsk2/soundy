@@ -1,30 +1,37 @@
 import hashlib
 from smartcard.util import toHexString
+import cardy
 
-class DESFireUidReader:
+class DESFireUidReader(cardy.IUidReader):
     def __init__(self, watched_atr):
         self._atr = watched_atr
         # Taken and corrected from https://ridrix.wordpress.com/2009/09/19/mifare-desfire-communication-example/
         self._apdu_get_version = [0x90, 0x60, 0x00, 0x00, 0x00]
         self._apdu_read_next   = [0x90, 0xAF, 0x00, 0x00, 0x00]
     
-    def uid_to_card_id(self, d):
+    def _uid_to_card_id(self, d):
         t = hashlib.md5(bytes(d)).digest()[0:2]
         return t[1]*256 + t[0]
+
+    def get_atr(self):
+        return self._atr
+    
+    def get_name(self):
+        return "DESFire"
 
     def make_card_id(self, card, default_id):
         if self._atr != toHexString(card.atr):
             return default_id, True
 
-        uid = self.read_des_fire_uid(card)
+        uid = self._read_des_fire_uid(card)
         if uid == None:
             return default_id, False
 
-        new_id = self.uid_to_card_id(uid)
+        new_id = self._uid_to_card_id(uid)
 
         return new_id, True
 
-    def read_des_fire_uid(self, card):
+    def _read_des_fire_uid(self, card):
         try:
             card.connection = card.createConnection()
             card.connection.connect()
