@@ -47,10 +47,10 @@ class UidReaderRepo:
             else:
                 index += 1
         
-        raise Exception(f"Unknown atr {atr}")
+        raise Exception(f"Unknown ATR {atr}")
 
     def to_uid_r(self, atr):
         if atr in self._atr_map.keys():
             return self._atr_map[atr]
         else:
-            raise Exception(f"Unknown atr {atr}")
+            raise Exception(f"Unknown ATR {atr}")
