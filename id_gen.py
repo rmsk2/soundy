@@ -5,37 +5,30 @@ from smartcard.CardMonitoring import CardMonitor, CardObserver
 from smartcard.util import toHexString
 import desfire
 from soundyconsts import *
-import cardy
+import uidfactory
 
 
 class CardIdObserver(CardObserver):
-    def __init__(self, uid_reader):
-        if not isinstance(uid_reader, cardy.IUidReader):
-            raise Exception("Wrong type")
+    def __init__(self, uid_repo):
         
-        self._uid_reader = uid_reader
+        self._uid_repo = uid_repo
 
     def update(self, _, actions):
         (addedcards, removedcards) = actions
         for card in addedcards:
             atr_txt = toHexString(card.atr)
-            if atr_txt != self._uid_reader.get_atr():
-                print(f"Not a {self._uid_reader.get_name()} card. ATR {atr_txt}")
 
-                if atr_txt in ALL_ATRS:
-                    for i in range(len(ALL_ATRS)):
-                        if ALL_ATRS[i] == atr_txt:
-                            print(f"Card type is known and has id {i}")
-                else:
-                    print("Card type unknown")
-                return
-            
-            res, ok = self._uid_reader.make_card_id(card, -1)
+            if atr_txt not in ALL_ATRS:
+                print(f"Card type unknown. ATR {atr_txt}")
+                continue
+
+            uid_reader = self._uid_repo.to_uid_r(atr_txt)
+            card_id, ok = uid_reader.make_card_id(card)
             if not ok:
-                print(f"Error reading {self._uid_reader.get_name()} card")
-                return
+                print(f"Error reading {uid_reader.get_name()} card")
+                continue
 
-            print(f"Card Id: {res}")
+            print(f"{uid_reader.get_name()} card. Card id: {card_id}")
 
         for card in removedcards:
             pass
@@ -44,10 +37,10 @@ class CardIdObserver(CardObserver):
 if __name__ == "__main__":
     try:
         os.system(CLEAR_COMMAND)
-        uid_reader = desfire.DESFireUidReader(ATR_DES_FIRE)
-        print(f"Put a ({uid_reader.get_name()}) card on the reader to get its id")
+        u = uidfactory.UidReaderRepo()
+        print(f"Put a card on the reader to get its id")
         cardmonitor = CardMonitor()
-        uid_observer = CardIdObserver(uid_reader)
+        uid_observer = CardIdObserver(u)
         cardmonitor.addObserver(uid_observer)
 
         input("Press Enter to stop\n\n")

@@ -1,3 +1,5 @@
+from typing import Any
+
 # Function codes
 FUNC_PLAYLIST_RESTART = 0
 FUNC_SONG_RESTART = 1
@@ -31,3 +33,18 @@ MSG_RESTART_SONG = "Go back to beginning of chapter"
 MSG_SKIP_SONG = "To next chapter"
 MSG_NEXT_SONG = "To previous chapter"
 MSG_PLAY_FORMAT_STR = "Chapter {song} of {num_songs}"
+
+NO_CARD_ID = -1
+NO_ATR = ""
+
+
+class IUidReader:
+    def make_card_id(self, card: Any) -> tuple[int, bool]:
+        # id, ok
+        return NO_CARD_ID, False
+
+    def get_atr(self) -> str:
+        return NO_ATR
+
+    def get_name(self) -> str:
+        return ""

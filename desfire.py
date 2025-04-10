@@ -1,8 +1,8 @@
 import hashlib
 from smartcard.util import toHexString
-import cardy
+from soundyconsts import *
 
-class DESFireUidReader(cardy.IUidReader):
+class DESFireUidReader(IUidReader):
     def __init__(self, watched_atr):
         self._atr = watched_atr
         # Taken and corrected from https://ridrix.wordpress.com/2009/09/19/mifare-desfire-communication-example/
@@ -19,13 +19,10 @@ class DESFireUidReader(cardy.IUidReader):
     def get_name(self):
         return "DESFire"
 
-    def make_card_id(self, card, default_id):
-        if self._atr != toHexString(card.atr):
-            return default_id, True
-
+    def make_card_id(self, card):
         uid = self._read_des_fire_uid(card)
         if uid == None:
-            return default_id, False
+            return NO_CARD_ID, False
 
         new_id = self._uid_to_card_id(uid)
 

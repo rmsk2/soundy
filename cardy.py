@@ -2,32 +2,13 @@ from smartcard.CardMonitoring import CardMonitor, CardObserver
 from smartcard.util import toHexString
 import pygame
 from soundyconsts import *
-from typing import Any
-
-NO_CARD_ID = -1
-NO_ATR = ""
-
-
-class IUidReader:
-    def make_card_id(self, card: Any, default_id: int) -> tuple[int, bool]:
-        # id, ok
-        return default_id, False
-
-    def get_atr(self) -> str:
-        return NO_ATR
-
-    def get_name(self) -> str:
-        return ""
 
 
 class RfidObserver(CardObserver):
-    def __init__(self, card_atrs, uid_reader, event_insert, event_remove, event_comm_error):
-        if not isinstance(uid_reader, IUidReader):
-            raise Exception("Wrong type")
-                
+    def __init__(self, card_atrs, uid_repo, event_insert, event_remove, event_comm_error):
         self._card_atrs = {}
         self._inv_card_atrs = {}
-        self._uid_reader = uid_reader
+        self._uid_repo = uid_repo
 
         for i in range(len(card_atrs)):
             self._card_atrs[i] = card_atrs[i]
@@ -63,7 +44,8 @@ class RfidObserver(CardObserver):
         if not (atr in self._inv_card_atrs.keys()):
             return NO_CARD_ID, False
         
-        card_id, ok = self._uid_reader.make_card_id(card, self._inv_card_atrs[atr])
+        uid_reader = self._uid_repo.to_uid_r(atr)
+        card_id, ok = uid_reader.make_card_id(card)
         if not ok:
             return NO_CARD_ID, False
 

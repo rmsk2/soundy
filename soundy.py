@@ -8,10 +8,10 @@ import pathlib
 from pygame import mixer
 import pygame
 import cardy
-import desfire
 import playlist
 import soundy_ui
 from soundyconsts import *
+import uidfactory
 
 
 STATE_IDLE = 0
@@ -211,7 +211,7 @@ def main():
     player = SoundyPlayer(ui, event_insert, event_remove, event_music_end, event_function, event_playing, event_pause, event_list_end, event_ui_stopped, event_err_generic)
     player.load_playlists(config_dir)
 
-    card_manager = cardy.CardManager(ALL_ATRS, desfire.DESFireUidReader(ATR_DES_FIRE), event_insert, event_remove, event_err_generic)
+    card_manager = cardy.CardManager(ALL_ATRS, uidfactory.UidReaderRepo(), event_insert, event_remove, event_err_generic)
     card_manager.start()
 
     init_reader(ui.ui_config["wait_reader_sec"])
