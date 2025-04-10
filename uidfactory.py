@@ -4,8 +4,8 @@ import desfire
 
 
 class DummyReader(IUidReader):
-    def __init__(self, id, name, atr):
-        self._id = id
+    def __init__(self, name, atr):
+        self._id = UidReaderRepo.get_default_id(atr)
         self._name = name
         self._atr = atr
 
@@ -22,7 +22,7 @@ class DummyReader(IUidReader):
 class UidReaderRepo:
     def __init__(self):
         self._atr_map = {}
-        self.add_known_cards()
+        self.add_named_cards()
 
         # automatically create a dummy uid reader for all cards which are
         # not explicitly named
@@ -32,13 +32,13 @@ class UidReaderRepo:
 
         for i in not_named:
             card_type = UidReaderRepo.get_default_id(i)
-            self._atr_map[i] = DummyReader(card_type, f"Type {card_type}", i)
+            self._atr_map[i] = DummyReader(f"Type {card_type}", i)
 
-    def add_known_cards(self):
+    def add_named_cards(self):
         self._atr_map[ATR_DES_FIRE] = desfire.DESFireUidReader(ATR_DES_FIRE)
-        self._atr_map[ATR_E_PERSO] = DummyReader(UidReaderRepo.get_default_id(ATR_E_PERSO), "German national ID", ATR_E_PERSO)
-        self._atr_map[ATR_GIRO] = DummyReader(UidReaderRepo.get_default_id(ATR_GIRO), "German Giro", ATR_GIRO)
-        self._atr_map[ATR_EGK] = DummyReader(UidReaderRepo.get_default_id(ATR_EGK), "German electronic health", ATR_EGK)
+        self._atr_map[ATR_E_PERSO] = DummyReader("German national ID", ATR_E_PERSO)
+        self._atr_map[ATR_GIRO] = DummyReader("German Giro", ATR_GIRO)
+        self._atr_map[ATR_EGK] = DummyReader("German electronic health", ATR_EGK)
 
     @staticmethod
     def get_default_id(atr):

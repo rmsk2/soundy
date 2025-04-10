@@ -38,6 +38,8 @@ NO_CARD_ID = -1
 NO_ATR = ""
 
 
+# A UiReader knows how to calculate an individual identity for
+# the cards of a specifc type using its serial number
 class IUidReader:
     def make_card_id(self, card: Any) -> tuple[int, bool]:
         # id, ok
