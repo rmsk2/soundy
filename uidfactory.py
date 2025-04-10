@@ -35,7 +35,7 @@ class UidReaderRepo:
         not_named = all - named        
 
         for i in not_named:
-            card_type = UidReaderRepo.get_default_id(ATR_EGK)
+            card_type = UidReaderRepo.get_default_id(i)
             self._atr_map[i] = DummyReader(card_type, f"Type {card_type}", i)
 
     @staticmethod
