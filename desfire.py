@@ -1,5 +1,4 @@
 import hashlib
-from smartcard.util import toHexString
 from soundyconsts import *
 
 class DESFireUidReader(IUidReader):

@@ -17,7 +17,8 @@ ATR_DES_FIRE = "3B 81 80 01 80 80"
 ATR_E_PERSO = "3B 84 80 01 80 82 90 00 97"
 ATR_GIRO = "3B 87 80 01 80 31 C0 73 D6 31 C0 23"
 ATR_EGK = "3B 85 80 01 30 01 01 30 30 34"
-ALL_ATRS = [ATR_E_PERSO, ATR_GIRO, ATR_EGK, ATR_DES_FIRE]
+ATR_NTAG = "3B 8F 80 01 80 4F 0C A0 00 00 03 06 03 00 03 00 00 00 00 68"
+ALL_ATRS = [ATR_E_PERSO, ATR_GIRO, ATR_EGK, ATR_DES_FIRE, ATR_NTAG]
 
 # Change to cls on Windows
 CLEAR_COMMAND = 'clear'
@@ -39,7 +40,7 @@ NO_ATR = ""
 
 
 # A UiReader knows how to calculate an individual identity for
-# the cards of a specifc type using its serial number
+# the cards of a specifc type using their serial number
 class IUidReader:
     def make_card_id(self, card: Any) -> tuple[int, bool]:
         # id, ok
