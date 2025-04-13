@@ -3,7 +3,7 @@
 The main idea behind this software is to allow the user to control playback of tracks on a playlist via
 RFID capable smartcards. I.e. the user can start playback of a playlist by putting a corresponding smartcard 
 (called a `playlist card`) on the reader and pausing playback by removing the card from the reader again. 
-The playlist which is played back depends on the identity of smartcard which is placed on the reader. I.e. different 
+The playlist which is played back depends on the identity of the smartcard which is placed on the reader. I.e. different 
 playlist cards cause different playlists to be played. In addition to that the user can control the following 
 aspects via another set of smartcards called `function cards`.
 
@@ -39,12 +39,15 @@ smartcards you may have lying around. If you manage to find at least six differe
 to control the five functions mentioned above and one playlist. I have tested the following cards or RFID capable devices
 
 - The German national ID card (ePA)
-- The German health system card (eGK)
+- The German health insurance card (eGK)
 - Bank cards
 - Credit cards
 - Different company badges
 - Yubikeys and other security sticks
 - Fido tokens
+- Company loyalty cards
+
+## Using DESFire cards
 
 Hunting for a usable set of cards or other RFID enabled devices seemed to be impractical in the long run, so another solution was 
 needed. Different smartcard families allow to identify cards which are part of this family by a unique card serial number and offer
@@ -53,28 +56,49 @@ DESFire cards are sold for instance on Amazon I decided to implement reading the
 an alternative to the ATR for identifying individual cards. 
 
 It also seemed to be impractical to use the full seven byte serial number in the various config files and so the program
-`id_gen.py` calculates and prints a simplified card id for each DESFire card which is placed on the reader
+`id_gen.py` calculates and prints a simplified card id for each recognized type of card which is placed on the reader
 
 ```
-Put a (DESFire) card on the reader to get its id
+Put a card on the reader to get its id
 Press Enter to stop
 
-Not a DESFire card. ATR 3B 88 80 01 89 01 A0 11 20 20 09 07 3E
-Card type unknown
-Not a DESFire card. ATR 3B 84 80 01 80 82 90 00 97
-Card type is known and has id 0
-Card Id: 51918
+DESFire card. Card id: 51918
+Ntag215 card. Card id: 63840
+Card type unknown. ATR 3B 8F 80 01 80 4F 0C A0 00 00 03 06 03 00 01 00 00 00 00 6A
+German national ID card. Card id: 0
 ```
 
-or the full ATR for non DESFire cards as well as their id if the card type is known. You might say that using a smartcard intended 
-for security purposes in a scenario like this is totally overblown and you are right. But that is what seemed to work with my reader
-and the software stack immediately available to me. If I end up owning a reader that can read simple RFID tags and if these
-are compatible with `pyscard` then maybe I will adapt this software accordingly.
+or the full ATR for unknown cards. You might say that using a smartcard intended for security purposes in a scenario like this is 
+totally overblown and you are right. But that is what seemed to work with my reader and the software stack immediately available to me. 
+
+## Using simpler NFC tags
+
+In a second step and after purchasing an additional reader (an ACS ARC122U) I also implemented reading serial numbers from ISO 14443 Type A
+NFC tags like for instance various types of Mifare cards. Take a look at `uidfactory.py`, `soundyconsts.IUidReader`, `DESFireUidReader`
+and `Ntag215UidReader` in order to get an idea of how to add more card types. I then also discovered that the DESFire cards can also be 
+treated as simple ISO 14443 Type A tags, but I left the DESFire specific code in place.
+
+## Speaking of the ACS ARC122U
+
+It is a versatile device which has read all RFID capable devices I have thrown at it. Unfortunatley `pyscard` support
+for this (CCID compliant) device on Linux, which is my preferred development platform, is rough. Even after installing `libacsccid1`, 
+which is part of the Universe repository on Ubuntu 24.04, manual intervention is required each time the reader is plugged into a USB 
+port or after each reboot. You have to manually unload the kernel module `pn533_usb` via the command `sudo modprobe -r pn533_usb` 
+(see [here](https://ludovicrousseau.blogspot.com/2013/11/linux-nfc-driver-conflicts-with-ccid.html) and 
+[here](https://superuser.com/questions/1477349/acr122-nfc-reader-does-not-work-with-libnfc-ubuntu)) to make it work with `pyscard`. 
+I know I could blacklist the module but I did not want to tweak my system too much.
+
+Another annoying factor is the buzzer built into the device which beeps each time a card is recognized. You can use the program 
+`acr122_buzzer_off.py` to switch off the buzzer but this is unfortunately not permanent. It has to be repeated each time the reader
+is powered on and so you will hear the buzzer at least once after each reboot or after plugging the reader into a USB port. People
+seemed to be so annoyed by this that they have written blog post on how to desolder the buzzer from the reader's PCB.
+
+## A note about card ids
 
 As `id_gen.py` simply calculates a hash over the serial number read from the card and uses the first two bytes of this
-hash as an id (see method `uid_to_card_id()` of class `DESFireUidReader` in `desfire.py`) it is not that unlikely that two
-of your cards are assigned the same id. In that case you could use some other bytes from the hash, hash some additional data
-or use more hash bytes to make sure all of your cards end up having a different id.
+hash as an id (see method `uid_to_card_id()` of class `DESFireUidReader` in `desfire.py` or `Ntag215UidReader` in `ntag21x.py`) 
+it is not that unlikely that two of your cards are assigned the same id. In that case you could use some other bytes from the hash, 
+hash some additional data or use more hash bytes to make sure all of your cards end up having a different id.
 
 # Run the software and configuration
 
