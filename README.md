@@ -75,7 +75,7 @@ totally overblown and you are right. But that is what seemed to work with my rea
 
 In a second step and after purchasing an additional reader (an ACS ACR122U) I also implemented reading serial numbers from ISO 14443 Type A
 NFC tags like for instance various types of Mifare cards. Take a look at `uidfactory.py`, `soundyconsts.IUidReader`, `DESFireUidReader`
-and `Ntag215UidReader` in order to get an idea of how to add more card types. I then also discovered that the DESFire cards can also be 
+and `Ntag215UidReader` in order to get an idea of how to add more card types. I then discovered that the DESFire cards can also be 
 treated as simple ISO 14443 Type A tags, but I left the DESFire specific code in place.
 
 ## Speaking of the ACS ARC122U
