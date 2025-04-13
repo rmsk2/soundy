@@ -3,7 +3,6 @@
 import os
 from smartcard.CardMonitoring import CardMonitor, CardObserver
 from smartcard.util import toHexString
-import desfire
 from soundyconsts import *
 import uidfactory
 
