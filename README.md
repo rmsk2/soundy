@@ -90,8 +90,8 @@ I know I could blacklist the module but I did not want to tweak my system too mu
 
 Another annoying factor is the buzzer built into the device which beeps each time a card is recognized. You can use the program 
 `acr122_buzzer_off.py` to switch off the buzzer but this is unfortunately not permanent. It has to be repeated each time the reader
-is powered on and so you will hear the buzzer at least once after each reboot or after plugging the reader into a USB port. People
-seemed to be so annoyed by this that they have written blog posts on how to desolder the buzzer from the reader's PCB.
+is powered on and so you will hear the buzzer at least once after each power up. People seemed to be so annoyed by this that they 
+have written blog posts on how to desolder the buzzer from the reader's PCB.
 
 ## A note about card ids
 

@@ -5,7 +5,7 @@ from soundyconsts import *
 
 
 class RfidObserver(CardObserver):
-    def __init__(self, card_atrs, uid_repo, event_insert, event_remove, event_comm_error):
+    def __init__(self, card_atrs, uid_repo, event_insert, event_remove, event_comm_error, event_first_card):
         self._card_atrs = {}
         self._inv_card_atrs = {}
         self._uid_repo = uid_repo
@@ -17,8 +17,10 @@ class RfidObserver(CardObserver):
         self._ev_insert = event_insert
         self._ev_remove = event_remove
         self._ev_comm_error = event_comm_error
+        self._ev_first_card = event_first_card
         self._atr_inserted = NO_ATR
         self._id_inserted = NO_CARD_ID
+        self._insert_count = 0
 
     def calc_card_id_removed(self, card):
         atr = toHexString(card.atr)
@@ -70,14 +72,20 @@ class RfidObserver(CardObserver):
             if self._atr_inserted == NO_ATR:
                 id, ok = self.calc_card_id_inserted(card)
                 if ok:
+                    # Hook to turn off acr122U buzzer when first card is inserted
+                    if self._insert_count == 0:
+                        pygame.event.post(pygame.event.Event(self._ev_first_card, card_obj=card))
+
+                    self._insert_count += 1
+
                     pygame.event.post(pygame.event.Event(self._ev_insert, card_id=id, beep=True))
                 else:
                     pygame.event.post(pygame.event.Event(self._ev_comm_error, err_type=ERR_TYPE_COMM, err_msg="Card error at insertion"))
 
 class CardManager:
-    def __init__(self, known_atrs, uid_reader, event_insert, event_remove, event_comm_error):
+    def __init__(self, known_atrs, uid_reader, event_insert, event_remove, event_comm_error, event_first_card):
         self._monitor = CardMonitor()
-        self._observer = RfidObserver(known_atrs, uid_reader, event_insert, event_remove, event_comm_error)
+        self._observer = RfidObserver(known_atrs, uid_reader, event_insert, event_remove, event_comm_error, event_first_card)
 
     def start(self):
         self._monitor.addObserver(self._observer)

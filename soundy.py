@@ -20,7 +20,7 @@ STATE_PLAYING = 1
 NO_SONG = -1
 
 class SoundyPlayer:
-    def __init__(self, ui, event_insert, event_remove, event_music_end, event_function, event_playing, event_pause, event_list_end, ui_stopped, err_generic):
+    def __init__(self, ui, event_insert, event_remove, event_music_end, event_function, event_playing, event_pause, event_list_end, ui_stopped, err_generic, event_first_card):
         self.insert = event_insert
         self.remove = event_remove
         self.play_end = event_music_end
@@ -34,6 +34,7 @@ class SoundyPlayer:
         self.perform_function = None
         self._end_program = False
         self.event_err_gen = err_generic
+        self.event_first_card = event_first_card
         self.ui = ui
 
         c = ui.ui_config["ids"]
@@ -43,6 +44,7 @@ class SoundyPlayer:
         self.card_id_skip = c["skip"]
         self.card_id_prev = c["prev"]
         self.titles = {}
+        self._first_handler = lambda x: None
 
     def load_playlists(self, config_dir):
         try:
@@ -67,6 +69,14 @@ class SoundyPlayer:
             return ctx
 
         return prepper
+
+    @property
+    def first_handler(self):
+        return self._first_handler
+
+    @first_handler.setter
+    def first_handler(self, val):
+        self._first_handler = val
 
     @property
     def end_program(self):
@@ -169,6 +179,8 @@ class SoundyPlayer:
             self.ui.handle_list_end()
         elif event.type == self.event_ui_stopped:
             self._end_program = True
+        elif event.type == self.event_first_card:
+            self.first_handler(event.card_obj)
 
 
 def init_reader(wait_time):
@@ -198,6 +210,7 @@ def main():
     event_list_end = pygame.event.custom_type()
     event_ui_stopped = pygame.event.custom_type()
     event_err_generic = pygame.event.custom_type()
+    event_first_card = pygame.event.custom_type()
     pygame.mixer.music.set_endevent(event_music_end)
 
     config_dir ="./"
@@ -208,10 +221,11 @@ def main():
     ui.load_config(config_dir)
     #ui.logger = print_logger
 
-    player = SoundyPlayer(ui, event_insert, event_remove, event_music_end, event_function, event_playing, event_pause, event_list_end, event_ui_stopped, event_err_generic)
+    player = SoundyPlayer(ui, event_insert, event_remove, event_music_end, event_function, event_playing, event_pause, event_list_end, event_ui_stopped, event_err_generic, event_first_card)
     player.load_playlists(config_dir)
+    #player.first_handler = acr122u_buzzer_off
 
-    card_manager = cardy.CardManager(ALL_ATRS, uidfactory.UidReaderRepo(), event_insert, event_remove, event_err_generic)
+    card_manager = cardy.CardManager(ALL_ATRS, uidfactory.UidReaderRepo(), event_insert, event_remove, event_err_generic, event_first_card)
     card_manager.start()
 
     init_reader(ui.ui_config["wait_reader_sec"])
