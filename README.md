@@ -1,11 +1,12 @@
 # General overview
 
 The main idea behind this software is to allow the user to control playback of tracks on a playlist via
-RFID capable smartcards. I.e. the user can start playback of a playlist by putting a corresponding smartcard 
-(called a `playlist card`) on the reader and pausing playback by removing the card from the reader again. 
-The playlist which is played back depends on the identity of the smartcard which is placed on the reader. I.e. different 
-playlist cards cause different playlists to be played. In addition to that the user can control the following 
-aspects via another set of smartcards called `function cards`.
+NFC capable smartcards or other NFC capable devices like for instance security sticks or a plethora of tags in various
+shapes and sizes. I.e. the user can start playback of a playlist by putting a corresponding smartcard  
+(called a `playlist card`) on the reader and pausing playback by removing the card from the reader again. The playlist
+which is played back depends on the identity of the smartcard which is placed on the reader. I.e. different playlist
+cards cause different playlists to be played. In addition to that the user can control the following aspects via another
+set of smartcards called `function cards`.
 
 - Restart the selected playlist
 - Restart the current track
@@ -21,7 +22,7 @@ would be achieved by first placing the `restart function card` on the reader fol
 The whole purpose behind all this is to increase the accessibility of audio books for persons who are impaired in such ways
 that make using the UI of modern computers difficult or impractical. This is (hopefully) achieved by transforming the task 
 of using a piece of software via a mouse or touch controlled GUI into a series of simple manual interactions which require 
-the user to place easy to handle physical objects (smartcards) at a certain location (the reader).
+the user to place easy to handle physical objects (smartcards, tags, ...) at a certain location (the reader).
 
 This software is written in Python and depends on [`pygame`](https://www.pygame.org/docs/) for implemeting the UI and 
 `pyscard` for handling card access. [`pyscard`](https://github.com/LudovicRousseau/pyscard) in turn relies on the `pcscd` 
@@ -160,7 +161,7 @@ in which these tracks are played back.
 You can use the program `create_list.py` from this repo to create a new playlist. Execute `python3 create_list.py <dir to list> <new playlist file>`,
 where `<dir to list>` is the directory which contains the music files of the playlist and `<new playlist file>` has to specify the name of the file
 in which the new playlist is to be saved. The contents of the given directory is listed, sorted and added to the playlist as its `titles` component.
-Additionally you have to enter a name for the playlist and the the id of the corresponding `playlist card`.
+Additionally you have to enter a name for the playlist and put the desired `playlist card` on the reader so that its id can be determined.
 
 # Installation on macOS
 
