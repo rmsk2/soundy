@@ -79,7 +79,7 @@ NFC tags like for instance various types of Mifare cards. Take a look at `uidfac
 and `Ntag215UidReader` in order to get an idea of how to add more card types. I then discovered that the DESFire cards can also be 
 treated as simple ISO 14443 Type A tags, but I left the DESFire specific code in place.
 
-## Speaking of the ACS ARC122U
+## Speaking of the ACS ACR122U
 
 It is a versatile device which has read all RFID capable devices I have thrown at it. Unfortunatley `pyscard` support
 for this (CCID compliant) device on Linux, which is my preferred development platform, is rough. Even after installing `libacsccid1`, 
