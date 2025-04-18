@@ -4,6 +4,7 @@ import os
 from smartcard.CardMonitoring import CardMonitor, CardObserver
 from soundyconsts import *
 import uidfactory
+import acr122u
 
 
 class CardIdObserver(CardObserver):
@@ -12,7 +13,7 @@ class CardIdObserver(CardObserver):
         self._uid_repo = uid_repo
 
     def _acr122u_buzzer_off(self, card):
-        return acr122u_buzzer_off(card)
+        return acr122u.buzzer_off(card)
 
     def update(self, _, actions):
         (addedcards, removedcards) = actions

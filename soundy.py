@@ -191,7 +191,7 @@ def init_reader(wait_time):
 
     print("done")
 
-def print_logger(msg):
+def printing_logger(msg):
     print(msg)
 
 def main():
@@ -219,11 +219,11 @@ def main():
 
     ui = soundy_ui.SoundyUI(event_ui_stopped)
     ui.load_config(config_dir)
-    #ui.logger = print_logger
+    #ui.logger = printing_logger
 
     player = SoundyPlayer(ui, event_insert, event_remove, event_music_end, event_function, event_playing, event_pause, event_list_end, event_ui_stopped, event_err_generic, event_first_card)
     player.load_playlists(config_dir)
-    #player.first_handler = acr122u_buzzer_off
+    #player.first_handler = acr122u.buzzer_off
 
     card_manager = cardy.CardManager(ALL_ATRS, uidfactory.UidReaderRepo(), event_insert, event_remove, event_err_generic, event_first_card)
     card_manager.start()
