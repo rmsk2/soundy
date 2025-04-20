@@ -12,6 +12,7 @@ import playlist
 import soundy_ui
 from soundyconsts import *
 import uidfactory
+import acr122u
 
 
 STATE_IDLE = 0
@@ -223,7 +224,7 @@ def main():
 
     player = SoundyPlayer(ui, event_insert, event_remove, event_music_end, event_function, event_playing, event_pause, event_list_end, event_ui_stopped, event_err_generic, event_first_card)
     player.load_playlists(config_dir)
-    #player.first_handler = acr122u.buzzer_off
+    player.first_handler = lambda x: acr122u.buzzer_off(x) if (str(x).find("ACS ACR122U") != -1) else None
 
     card_manager = cardy.CardManager(ALL_ATRS, uidfactory.UidReaderRepo(), event_insert, event_remove, event_err_generic, event_first_card)
     card_manager.start()
