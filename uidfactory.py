@@ -37,6 +37,7 @@ class UidReaderRepo:
     def add_named_cards(self):
         self._atr_map[ATR_DES_FIRE] = desfire.DESFireUidReader(ATR_DES_FIRE)
         self._atr_map[ATR_NTAG] = ntag21x.Ntag215UidReader(ATR_NTAG)
+        self._atr_map[ATR_MIFARE_CLASSIC] = ntag21x.Ntag215UidReader(ATR_MIFARE_CLASSIC)
         self._atr_map[ATR_E_PERSO] = DummyReader("German national ID", ATR_E_PERSO)
         self._atr_map[ATR_GIRO] = DummyReader("German Giro", ATR_GIRO)
         self._atr_map[ATR_EGK] = DummyReader("German electronic health", ATR_EGK)
