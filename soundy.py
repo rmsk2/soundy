@@ -37,6 +37,7 @@ class SoundyPlayer:
         self.event_err_gen = err_generic
         self.event_first_card = event_first_card
         self.ui = ui
+        self.activate_close_button = False
 
         c = ui.ui_config["ids"]
         self.card_id_rewind = c["rewind"]
@@ -182,6 +183,9 @@ class SoundyPlayer:
             self._end_program = True
         elif event.type == self.event_first_card:
             self.first_handler(event.card_obj)
+        elif event.type == pygame.QUIT:
+            if self.activate_close_button:
+                self._end_program = True
 
 
 def init_reader(wait_time):
@@ -225,6 +229,9 @@ def main():
     player = SoundyPlayer(ui, event_insert, event_remove, event_music_end, event_function, event_playing, event_pause, event_list_end, event_ui_stopped, event_err_generic, event_first_card)
     player.load_playlists(config_dir)
     player.first_handler = lambda x: acr122u.buzzer_off(x) if (str(x).find("ACS ACR122U") != -1) else None
+
+    if ("activate_close_button" in ui.ui_config) and (ui.ui_config["activate_close_button"] == True):
+        player.activate_close_button = True
 
     card_manager = cardy.CardManager(ALL_ATRS, uidfactory.UidReaderRepo(), event_insert, event_remove, event_err_generic, event_first_card)
     card_manager.start()

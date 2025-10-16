@@ -17,5 +17,6 @@
         "font_size1": 72,
         "font_size2": 64
     },
-    "wait_reader_sec": 1.5
+    "wait_reader_sec": 1.5,
+    "activate_close_button": true
 }
