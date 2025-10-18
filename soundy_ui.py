@@ -1,4 +1,5 @@
 import os
+import sys
 import json
 import pygame
 import soundy
@@ -32,7 +33,7 @@ class SoundyUI:
                 all_data = json.load(f)
         except:
             print(all_messages[ERR_MSG_LOAD_CONFIG])
-            os.exit(42)
+            sys.exit(42)
         
         data = all_data["sounds"]
         self._sound_info = data["info_sound"]
@@ -58,6 +59,9 @@ class SoundyUI:
     @property
     def ui_config(self):
         return self._ui_config
+
+    def set_std_message(self, msg):
+        self._text = msg
 
     def redraw(self):
         text = self._font.render(self._text, True, self.black, self._background_col)

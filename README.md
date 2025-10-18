@@ -81,10 +81,10 @@ treated as simple ISO 14443 Type A tags, but I left the DESFire specific code in
 
 ## Speaking of the ACS ACR122U
 
-It is a versatile device which has read all RFID capable devices I have thrown at it. Unfortunatley `pyscard` support
-for this (CCID compliant) device on Linux, which is my preferred development platform, is rough. Even after installing `libacsccid1`, 
-which is part of the Universe repository on Ubuntu 24.04, manual intervention is required each time the reader is plugged into a USB 
-port or after each reboot. You have to manually unload the kernel module `pn533_usb` via the command `sudo modprobe -r pn533_usb` 
+It is a versatile device which has read all RFID capable devices I have thrown at it. It worked out of the box on macOS. Unfortunately
+`pyscard` support for this (CCID compliant) device on Linux, which is my preferred development platform, is rough. Even after installing
+`libacsccid1`, which is part of the Universe repository on Ubuntu 24.04, manual intervention is required each time the reader is plugged
+into a USB port or after each reboot. You have to manually unload the kernel module `pn533_usb` via the command `sudo modprobe -r pn533_usb`
 (see [here](https://ludovicrousseau.blogspot.com/2013/11/linux-nfc-driver-conflicts-with-ccid.html) and 
 [here](https://superuser.com/questions/1477349/acr122-nfc-reader-does-not-work-with-libnfc-ubuntu)) to make it work with `pyscard`. 
 I know I could blacklist the module but I did not want to tweak my system too much.
@@ -127,6 +127,12 @@ The "section" `size` specifies the size of the UI in pixels as well as the font 
 be customized in the file `soundyconsts.py` as can be the command which is used to clear the console after program start. Please
 change the constant `CLEAR_COMMAND` to `cls` under Windows.
 
+Via the entry `"activate_close_button"` (allowed values are `true` and `false`) you can control whether the program can be stopped
+by clicking the window's close button. This is useful during development but not neccessarily when the program is used for the
+intended purpose. In addition you can switch all text messages shown to german when setting the key `"lang"` to the value `"ger"`. If either
+of the previously mentioned keys are missing then default values are used. The default is to deactivate the close button and to show
+messages in english.
+
 ## Config of playlists
 
 Any `.json` file in the config dir is interpreted as a playlist. playlists have to have the following structure.
@@ -154,10 +160,10 @@ you create a new playlist by hand. This information is used when a playlist need
 zero based index of the track which would be played and `play_time` is used to determine the offset in seconds into this file. This is used to restart 
 playback on the same spot where it was stopped. For this to work 100% reliably, MP3 files should not be encoded with a variable bit rate. This is 
 [a limitation](https://www.pygame.org/docs/ref/music.html#pygame.mixer.music.play) of `pygame`. The value `card_id` determines the id of the
-card which is used as the `playlist card` for this playlist. As described above these ids can be determined by `id_gen.py` for DESFire cards
-and by the position of its ATR in `ALL_ATRS` for all other cards. `data_dir` specifies the directory in which the actual sound files are stored.
-The list `titles` specifies the names and positions of the individual tracks on this playlist, i.e. the sequence in this list determines the sequence
-in which these tracks are played back. 
+card which is used as the `playlist card` for this playlist. As described above these ids can be determined by `id_gen.py` for DESFire and
+ISO 14443 Type A cards and by the position of the ATR in `ALL_ATRS` for all other cards. `data_dir` specifies the directory in which the actual sound
+files are stored. The list `titles` specifies the names and positions of the individual tracks on this playlist, i.e. the sequence in this list
+determines the sequence in which these tracks are played back.
 
 You can use the program `create_list.py` from this repo to create a new playlist. Execute `python3 create_list.py <dir to list> <new playlist file>`,
 where `<dir to list>` is the directory which contains the music files of the playlist and `<new playlist file>` has to specify the name of the file
@@ -177,6 +183,8 @@ persons. In my specific case I wanted to make sure that the user is never forced
 this software runs. My ideal scenario was that the user simply opens a Laptop, the machine boots, the user is automatically logged in and the 
 program is started automatically without additional intervention. On top of that the machine should never go into sleep mode and the whole setup 
 should not be adversely affected if the user closes the laptop and reopens it. I solved all this by configuring an older macBook correspondingly.
+If you change the value of `SHUTDOWN_COMMAND` in the module `soundyconsts.py` to for instance `sudo shutdown -h now` and tweak the system a bit
+further you can also make the system shutdown when soundy ends.
 
 Another potential problem was created by the power management functions of some PC speakers which turn themselves off when no sound is played 
 but fail to turn themselves back on again when playing back the audio book is resumed. I solved this problem by playing a "beep" sound each time 

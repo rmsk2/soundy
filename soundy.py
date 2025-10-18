@@ -226,6 +226,10 @@ def main():
     ui.load_config(config_dir)
     #ui.logger = printing_logger
 
+    if ("lang" in ui.ui_config) and (ui.ui_config["lang"] == "ger"):
+        set_lang_ger()
+        ui.set_std_message(all_messages[STD_MSG])
+
     player = SoundyPlayer(ui, event_insert, event_remove, event_music_end, event_function, event_playing, event_pause, event_list_end, event_ui_stopped, event_err_generic, event_first_card)
     player.load_playlists(config_dir)
     player.first_handler = lambda x: acr122u.buzzer_off(x) if (str(x).find("ACS ACR122U") != -1) else None
@@ -254,4 +258,5 @@ def main():
         pygame.quit()
 
 if __name__ == "__main__":
-    main()    
+    main()
+    os.system(SHUTDOWN_COMMAND)

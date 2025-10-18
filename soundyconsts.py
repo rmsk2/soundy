@@ -23,6 +23,9 @@ ALL_ATRS = [ATR_E_PERSO, ATR_GIRO, ATR_EGK, ATR_DES_FIRE, ATR_NTAG, ATR_MIFARE_C
 
 # Change to cls on Windows
 CLEAR_COMMAND = 'clear'
+# Change this in order to shutdown the computer when soundy ends. On
+# macOS use "sudo shutdown -h now"
+SHUTDOWN_COMMAND = "echo shutdown"
 
 # This should be as long as the longest string to be displayed
 EMPTY_STR = '                                  '
@@ -50,6 +53,18 @@ all_messages = {
 
 NO_CARD_ID = -1
 NO_ATR = ""
+
+
+def set_lang_ger():
+    all_messages[ERR_MSG_LOAD_PLAYLIST] = "Playlist konnte nicht geladen werden"
+    all_messages[STD_MSG] = "Hallo"
+    all_messages[CAPTION_DEFAULT] = "Einfacher Hörbuchspieler"
+    all_messages[ERR_MSG_LOAD_CONFIG] = "Konfigrationsdatei konnte nicht gelesen werden"
+    all_messages[MSG_PLAYLIST_BEGINING] = "Zum Anfang des Hörbuchs"
+    all_messages[MSG_RESTART_SONG] = "Zum Anfang des Kapitels"
+    all_messages[MSG_SKIP_SONG] = "Zum nächsten Kapitel"
+    all_messages[MSG_NEXT_SONG] = "Zum vorigen Kapitel"
+    all_messages[MSG_PLAY_FORMAT_STR] = "Kapitel {song} von {num_songs}"
 
 
 # A UiReader knows how to calculate an individual identity for
