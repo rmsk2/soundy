@@ -14,7 +14,7 @@ class SoundyUI:
         self.blue = (0, 0, 255)
         self._x_size = 800
         self._y_size = 600
-        self._text = STD_MSG
+        self._text = all_messages[STD_MSG]
         self._func_text = EMPTY_STR
         self._background_col = self.white
         self._font_size = 48
@@ -31,7 +31,7 @@ class SoundyUI:
             with(open(os.path.join(config_dir, "ui_config"), "r") as f):
                 all_data = json.load(f)
         except:
-            print(ERR_MSG_LOAD_CONFIG)
+            print(all_messages[ERR_MSG_LOAD_CONFIG])
             os.exit(42)
         
         data = all_data["sounds"]
@@ -73,7 +73,7 @@ class SoundyUI:
 
     def start(self):
         self._display_surface = pygame.display.set_mode((self._x_size, self._y_size))
-        pygame.display.set_caption(CAPTION_DEFAULT)
+        pygame.display.set_caption(all_messages[CAPTION_DEFAULT])
         self._font = pygame.font.Font('freesansbold.ttf', self._font_size)
         self._func_font = pygame.font.Font('freesansbold.ttf', self._func_font_size)
 
@@ -102,16 +102,16 @@ class SoundyUI:
         if event.beep:
             self.sound_bell()
 
-        self._text = MSG_PLAY_FORMAT_STR.format(song=event.song, num_songs=event.num_songs)
+        self._text = all_messages[MSG_PLAY_FORMAT_STR].format(song=event.song, num_songs=event.num_songs)
         pygame.display.set_caption(event.play_list_name)
 
     def handle_pause(self):
-        pygame.display.set_caption(CAPTION_DEFAULT)
-        self._text = STD_MSG
+        pygame.display.set_caption(all_messages[CAPTION_DEFAULT])
+        self._text = all_messages[STD_MSG]
 
     def handle_list_end(self):
-        pygame.display.set_caption(CAPTION_DEFAULT)
-        self._text = STD_MSG
+        pygame.display.set_caption(all_messages[CAPTION_DEFAULT])
+        self._text = all_messages[STD_MSG]
 
     def handle_function_event(self, event):
         self.sound_bell()
@@ -119,12 +119,12 @@ class SoundyUI:
             pygame.time.wait(200)
             pygame.event.post(pygame.event.Event(self.stopped_event))
         elif event.kind == FUNC_PLAYLIST_RESTART:
-            self._func_text = MSG_PLAYLIST_BEGINING
+            self._func_text = all_messages[MSG_PLAYLIST_BEGINING]
         elif event.kind == FUNC_SONG_RESTART:
-            self._func_text =  MSG_RESTART_SONG
+            self._func_text =  all_messages[MSG_RESTART_SONG]
         elif event.kind == FUNC_SONG_SKIP:
-            self._func_text =  MSG_SKIP_SONG
+            self._func_text =  all_messages[MSG_SKIP_SONG]
         elif event.kind == FUNC_SONG_PREV:
-            self._func_text = MSG_NEXT_SONG
+            self._func_text = all_messages[MSG_NEXT_SONG]
         elif event.kind == FUNC_PERFORMED:
             self._func_text = EMPTY_STR

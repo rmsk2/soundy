@@ -57,7 +57,7 @@ class SoundyPlayer:
 
             titles_raw = list(map(playlist.PlayList.from_json, all_files))
         except:
-            print(ERR_MSG_LOAD_PLAYLIST)
+            print(all_messages[ERR_MSG_LOAD_PLAYLIST])
             sys.exit(42)
 
         self.titles = {}
