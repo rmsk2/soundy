@@ -104,7 +104,7 @@ hash some additional data or use more hash bytes to make sure all of your cards 
 
 # Run the software and configuration
 
-You can run this software though the command `python3 soundy.py <config_dir>`. Maybe you have to replace `python3` by `python`
+You can run this software through the command `python3 soundy.py <config_dir>`. Maybe you have to replace `python3` by `python`
 depending on your system. The config dir is optional. If it is mssing the current directory is used. When started the program
 reads the file `ui_config` in the config dir and interprets any `.json` file in this directory as a playlist. When an error
 reading a card is encountered the background of the UI flashes red once. An error reading a file is signalled by a single flashing
