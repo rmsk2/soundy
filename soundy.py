@@ -14,6 +14,7 @@ from soundyconsts import *
 import uidfactory
 import acr122u
 
+MAINTENANCE_INDICATOR = "maintenance"
 
 STATE_IDLE = 0
 STATE_PLAYING = 1
@@ -196,15 +197,16 @@ def init_reader(wait_time):
 
     print("done")
 
+
 def printing_logger(msg):
     print(msg)
 
-def main():
+
+def run_player(config_dir):
     # Last parameter is buffer size. Maybe increase it further if sound starts to lag
     mixer.pre_init(44100, -16, 2, 2048)
     pygame.init()
     mixer.init()
-    os.system(CLEAR_COMMAND)
 
     event_insert = pygame.event.custom_type()
     event_remove = pygame.event.custom_type()
@@ -217,10 +219,6 @@ def main():
     event_err_generic = pygame.event.custom_type()
     event_first_card = pygame.event.custom_type()
     pygame.mixer.music.set_endevent(event_music_end)
-
-    config_dir ="./"
-    if len(sys.argv) > 1:
-        config_dir = sys.argv[1]
 
     ui = soundy_ui.SoundyUI(event_ui_stopped)
     ui.load_config(config_dir)
@@ -257,6 +255,33 @@ def main():
         card_manager.destroy()
         pygame.quit()
 
+
+def maintenance_requested(config_dir):
+    p = pathlib.Path(config_dir) / MAINTENANCE_INDICATOR
+    res = p.exists()
+
+    #ignore errors
+    try:
+        if res:
+            p.unlink()
+    except:
+        pass
+
+    return res
+
+
+def main():
+    os.system(CLEAR_COMMAND)
+
+    config_dir = "./"
+    if len(sys.argv) > 1:
+        config_dir = sys.argv[1]
+
+    run_player(config_dir)
+
+    if not maintenance_requested(config_dir):
+        os.system(SHUTDOWN_COMMAND)
+
+
 if __name__ == "__main__":
     main()
-    os.system(SHUTDOWN_COMMAND)

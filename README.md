@@ -182,9 +182,19 @@ This chapter mentions some other aspects which can be important when putting thi
 persons. In my specific case I wanted to make sure that the user is never forced to interact with the operating system of the machine on which
 this software runs. My ideal scenario was that the user simply opens a Laptop, the machine boots, the user is automatically logged in and the 
 program is started automatically without additional intervention. On top of that the machine should never go into sleep mode and the whole setup 
-should not be adversely affected if the user closes the laptop and reopens it. I solved all this by configuring an older macBook correspondingly.
-If you change the value of `SHUTDOWN_COMMAND` in the module `soundyconsts.py` to for instance `sudo shutdown -h now` and tweak the system a bit
-further you can also make the system shutdown when soundy ends.
+should not be adversely affected if the user closes the laptop and reopens it. Finally shutting down the system should also be possible without
+interacting with the operating system. 
+
+I solved the last problem by allowing to run a command after soundy was stopped, for instance by placing the corresponding function card on
+the reader or by clicking the close button of the main window. This command can be set by changing the value of `SHUTDOWN_COMMAND` in the module
+`soundyconsts.py`. I use the software on macOS and I tweaked the system in such a way that the logged on user can utilize `sudo` without
+entering a password. After that setting `SHUTDOWN_COMMAND` to `sudo shutdown -h now` did the trick. You can prevent the shutdown command from
+being executed by creating a file called `maintenance` in the same directory where `ui_config` resides. When soundy detects the presence of this
+file it not only skips the execution of the shutdown command but also deletes the file. This makes sure that deleting the `maintenance` file after
+performing maintenance operations is not forgotten.
+
+The other problems (auto logon after reboot, autostart of a program after logon, preventing sleep mode (even when lid is closed)) were also overcome
+by configuring macOS correspondigly.
 
 Another potential problem was created by the power management functions of some PC speakers which turn themselves off when no sound is played 
 but fail to turn themselves back on again when playing back the audio book is resumed. I solved this problem by playing a "beep" sound each time 
