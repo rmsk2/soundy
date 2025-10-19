@@ -102,7 +102,7 @@ hash as an id (see method `uid_to_card_id()` of class `DESFireUidReader` in `des
 it is not that unlikely that two of your cards are assigned the same id. In that case you could use some other bytes from the hash, 
 hash some additional data or use more hash bytes to make sure all of your cards end up having a different id.
 
-# Run the software and configuration
+# Running the software and configuration
 
 You can run this software through the command `python3 soundy.py <config_dir>`. Maybe you have to replace `python3` by `python`
 depending on your system. The config dir is optional. If it is mssing the current directory is used. When started the program
@@ -127,9 +127,9 @@ The "section" `size` specifies the size of the UI in pixels as well as the font 
 be customized in the file `soundyconsts.py` as can be the command which is used to clear the console after program start. Please
 change the constant `CLEAR_COMMAND` to `cls` under Windows.
 
-Via the entry `"activate_close_button"` (allowed values are `true` and `false`) you can control whether the program can be stopped
+Via the entry `activate_close_button` (allowed values are `true` and `false`) you can control whether the program can be stopped
 by clicking the window's close button. This is useful during development but not neccessarily when the program is used for the
-intended purpose. In addition you can switch all text messages shown to german when setting the key `"lang"` to the value `"ger"`. If either
+intended purpose. In addition you can switch all text messages shown to german when setting the key `lang` to the value `"ger"`. If either
 of the previously mentioned keys are missing then default values are used. The default is to deactivate the close button and to show
 messages in english.
 
